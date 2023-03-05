@@ -1,39 +1,41 @@
 import os
 import ast
 import rsa
-from datetime import datetime
+from datetime import datetime, timedelta
 
+CURRENT_YEAR = datetime.now().strftime("20%y")
 PRIVATE_KEYS_DIR = "D:\\keys\\private_key.pem"
-MILESTONE_DIR = "D:\\Diary\\2023\\Milestone"
+MILESTONE_DIR = f"D:\\Diary\\{CURRENT_YEAR}\\Milestone"
 EXTRA = ["SONGS", "MOVIES", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
 
 def decrypt_rsa_message(ciphertext_file, private_key_file):
     with open(private_key_file, 'rb') as key_file:
         private_key = rsa.PrivateKey.load_pkcs1(key_file.read())
 
-    with open(ciphertext_file, 'rb') as f:
-        returnText = ""
+    try:
+        with open(ciphertext_file, 'rb') as f:
+            returnText = ""
 
-        ciphertext = f.read()
+            ciphertext = f.read()
 
-        list = ciphertext.decode("utf-8").split("\n")
+            list = ciphertext.decode("utf-8").split("\n")
 
-        for line in list:
-            if(len(line) != 0):
-                try:
-                    plaintext = rsa.decrypt(ast.literal_eval(line), private_key)
-                    returnText += plaintext.decode("utf-8") + "\n"
-                except:
-                    continue
-        return returnText
+            for line in list:
+                if(len(line) != 0):
+                    try:
+                        plaintext = rsa.decrypt(ast.literal_eval(line), private_key)
+                        returnText += plaintext.decode("utf-8") + "\n"
+                    except:
+                        continue
+            return returnText
+    except Exception:
+        return "You didn't write diary this date"
 
-def write_to_file_with_encryption(filename, timestamp):
-    text = input("Enter txt to write to file: ")
-
+def write_to_file_with_encryption(filename, text):
     with open("D:\\keys\\public_key.pem", "rb") as key_file:
         public_key = rsa.PublicKey.load_pkcs1(key_file.read())
 
-    message = f"{timestamp}: {text}".encode("utf-8")
+    message = text.encode("utf-8")
     encrypted_text = rsa.encrypt(message, public_key)
 
     mode = "a" if os.path.exists(filename) else "w"
@@ -59,6 +61,11 @@ def printMilestoneMenu():
         print(str(i+1) + ". " + EXTRA[i])
     print("-"*WIDTH)
 
+def printTitle(mes):
+    print("-"*10)
+    print(mes)
+    print("-"*10)
+
 
 def run():
     while True:
@@ -69,13 +76,14 @@ def run():
             return
         elif(user_input == "1"):
             dir = ""
+            timeStamp = ""
 
             user_choose = input("Diary or milestone (D/M): ")
 
             if(user_choose == "d"):
                 today=datetime.now().strftime("%d-%m")
-                dir = "D:\\Diary\\" + datetime.now().strftime(str(20) + "%y") + "\\" + today + ".txt"
-                timestamp = datetime.now().strftime("[%H:%M:%S]")
+                dir = "D:\\Diary\\" + datetime.now().strftime("20%y") + "\\" + today + ".txt"
+                timeStamp = datetime.now().strftime("[%H:%M:%S]") + ": "
             else:
                 os.system('cls')
                 printMilestoneMenu()
@@ -88,19 +96,44 @@ def run():
                 if(user_milestone_select != 0):
                     nm = "_".join(EXTRA[user_milestone_select-1].split(" "))
                     dir = f"{MILESTONE_DIR}\\{nm}.txt"
-                    timestamp = datetime.now().strftime("[%d/%m/20%y %H:%M:%S]")
+                    timeStamp = datetime.now().strftime("[%d/%m/20%y %H:%M:%S]") + ": "
 
-            write_to_file_with_encryption(dir, timestamp)
+            userText = input("Enter txt to write to file: ")
+
+            if(len(userText) == 0):
+                print("Empty message")
+            else:
+                write_to_file_with_encryption(dir, timeStamp + userText)
 
         elif(user_input == "2"):
             user_choose = input("Diary or milestone (D/M): ")
             dir = ""
 
             if(user_choose == "d"):
-                user_date = input("What date??(DD-MM-YYYY): ")
-                user_year = user_date[-4:]
-                user_day_month = user_date[:-5]
-                dir = f"D:\\Diary\\{user_year}\\{user_day_month}.txt"
+                today=datetime.now()
+
+                while True:
+                    todayString = today.strftime("%d-%m")
+                    todayYear = today.strftime("20%y")
+                    os.system("cls")
+
+                    printTitle(f"{todayString}-{todayYear}")
+                    dir = f"D:\\Diary\\{todayYear}\\{todayString}.txt"
+
+                    decrypted_message = decrypt_rsa_message(dir, PRIVATE_KEYS_DIR)
+                    print(decrypted_message)
+
+                    user_choose = input("NAV: ")
+                    if(user_choose == "a"):
+                        today = (today - timedelta(days=1))
+                    elif(user_choose == "d"):
+                        today = (today + timedelta(days=1))
+                    else:
+                        try:
+                            today = datetime.strptime(user_choose[:-5] + "-" + user_choose[-2:], "%d-%m-%y")
+                        except Exception:
+                            break
+                
             else:
                 os.system('cls')
                 printMilestoneMenu()
@@ -114,8 +147,9 @@ def run():
                     nm = "_".join(EXTRA[user_milestone_select-1].split(" "))
                     dir = f"{MILESTONE_DIR}\\{nm}.txt"
 
-            decrypted_message = decrypt_rsa_message(dir, PRIVATE_KEYS_DIR)
-            print(decrypted_message)
+                    decrypted_message = decrypt_rsa_message(dir, PRIVATE_KEYS_DIR)
+                    print(decrypted_message)
+
         print("Press to continue...")
         input()
 run()

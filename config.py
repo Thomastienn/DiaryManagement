@@ -9,15 +9,15 @@ PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
 today = datetime.now()
 today_day_month = today.strftime("%d-%m")
 current_year = today.strftime("20%y")
-today_file_dir = DIARY_DIR + current_year + "\\" + today_day_month + ".txt"
+today_file_dir = DIARY_DIR + "\\" + current_year + "\\" + today_day_month + ".txt"
 
 def update():
-    global current_year, today_file_dir
+    global today,today_day_month, current_year, today_file_dir, today_day_month
     
     while True:
         today = datetime.now()
         today_day_month = today.strftime("%d-%m")
         current_year = today.strftime("20%y")
-        today_file_dir = DIARY_DIR + current_year + "\\" + today_day_month + ".txt"
+        today_file_dir = DIARY_DIR + "\\" + current_year + "\\" + today_day_month + ".txt"
         
         time.sleep(1)

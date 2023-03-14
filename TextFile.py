@@ -2,8 +2,14 @@ import rsa, ast, os
 import config
 
 class TextFile:
-    def __init__(self, dir: str) -> None:
-        self.dir = dir
+    def __init__(self, upper_dir: str = None, file_name: str = None, full_dir: str = None) -> None:
+        if(not upper_dir and not file_name and not full_dir):
+            raise TypeError("Insufficient parameters") 
+        if full_dir:
+            self.dir = full_dir
+            return
+        file_name = file_name
+        self.dir = upper_dir + "\\" + file_name + ".txt"
 
     def decrypt_file(self) -> str:
         # Get private key
@@ -19,7 +25,7 @@ class TextFile:
                 return self.__decrypt_lines_text(lines=list_of_lines, private_key=private_key)
             
         except (FileNotFoundError, FileExistsError):
-            return ""
+            return self.dir + " not found"
         
     def write_file(self, text: str) -> None:
         # Get public key

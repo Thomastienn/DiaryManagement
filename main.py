@@ -3,6 +3,10 @@ from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
 
+def create_new_year_folder():
+    if(not os.path.exists(config.this_year_dir)):
+        os.mkdir(config.this_year_dir)
+
 def write_main():
     main_writer = main_milestone
     
@@ -15,6 +19,7 @@ def write_main():
     userText = input("Enter txt to write to file: ")
     
     if (userText):
+        create_new_year_folder()
         file_to_write = TextFile(full_dir = write_dir)
         file_to_write.write_file(main_writer.get_time_stamp() + userText)
     else:

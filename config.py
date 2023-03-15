@@ -1,5 +1,5 @@
 from datetime import datetime
-import time
+import time, os
 
 DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"
@@ -11,7 +11,8 @@ TITLE_WIDTH = 20
 today = datetime.now()
 today_day_month = today.strftime("%d-%m")
 current_year = today.strftime("20%y")
-today_file_dir = DIARY_DIR + "\\" + current_year + "\\" + today_day_month + ".txt"
+this_year_dir = DIARY_DIR + "\\" + current_year
+today_file_dir = this_year_dir + "\\" + today_day_month + ".txt"
 update_running_thread = True
 
 def stop_all_thread():
@@ -20,12 +21,13 @@ def stop_all_thread():
     update_running_thread = False
 
 def update():
-    global today,today_day_month, current_year, today_file_dir, today_day_month
+    global today,today_day_month, current_year, today_file_dir, today_day_month, this_year_dir
     
     while update_running_thread:
         today = datetime.now()
         today_day_month = today.strftime("%d-%m")
         current_year = today.strftime("20%y")
-        today_file_dir = DIARY_DIR + "\\" + current_year + "\\" + today_day_month + ".txt"
+        this_year_dir = DIARY_DIR + "\\" + current_year
+        today_file_dir = this_year_dir + "\\" + today_day_month + ".txt"
         
         time.sleep(1)

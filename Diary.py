@@ -41,7 +41,7 @@ class Diary(Feature):
             else:
                 try:
                     cur_today = datetime.strptime(user_choose[:-5] + "-" + user_choose[-2:], "%d-%m-%y")
-                except Exception:
+                except ValueError:
                     break
                 
     def find(self, find_str, exact=True, case_sensitive=False, tokenize=False) -> None:

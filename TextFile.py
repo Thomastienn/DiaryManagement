@@ -3,11 +3,11 @@ import config
 
 class TextFile:
     def __init__(self, upper_dir: str = None, file_name: str = None, full_dir: str = None) -> None:
-        if(not upper_dir and not file_name and not full_dir):
-            raise TypeError("Insufficient parameters") 
         if full_dir:
             self.dir = full_dir
             return
+        if(not upper_dir or not file_name):
+            raise TypeError("Insufficient parameters") 
         file_name = file_name
         self.dir = upper_dir + "\\" + file_name + ".txt"
 

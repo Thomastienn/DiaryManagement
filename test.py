@@ -1,4 +1,4 @@
-from datetime import datetime
+def func():
+    return 2
 
-user_choose = ""
-cur_today = datetime.strptime(user_choose[:-5] + "-" + user_choose[-2:], "%d-%m-%y")
+print(func(3))

@@ -5,15 +5,15 @@ from TextFile import TextFile
 
 class Diary(Feature):
     def __init__(self, dir: str) -> None:
-        super().__init__(dir, self.get_menu())
+        super().__init__(dir)
         
     def get_menu(self):
-        return ["Write", "Read", "Keys", "Find"]
+        return ["Write", "Read", "Find", "Milestone", "Keys"]
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%H:%M:%S]") + ": "
     
-    def handle_selection(self) -> None:
+    def handle_selection_write(self) -> None:
         return config.today_file_dir
     
     def navigate(self) -> None:

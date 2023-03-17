@@ -2,9 +2,8 @@ import config
 from abc import abstractmethod
 
 class Feature():
-    def __init__(self, dir: str, menu: list) -> None:
+    def __init__(self, dir: str) -> None:
         self.dir = dir
-        self.menu = menu
     
     @abstractmethod        
     def get_menu(self) -> list:
@@ -26,12 +25,12 @@ class Feature():
     def find(self, find_str, exact=True, case_sensitive=False, tokenize=False) -> None:
         pass
         
-    def printMenu(self) -> None:
+    def printMenu(self, menu: list) -> None:
         width = config.MENU_WIDTH
         print(self.__class__.__name__.center(width, "-"))
         print("0. Exit")
-        for i in range(len(self.menu)):
-            print(str(i+1) + ". " + self.menu[i])
+        for i in range(len(menu)):
+            print(str(i+1) + ". " + menu[i])
         print("-"*width)
 
     def printTitle(self, mes: str) -> None:

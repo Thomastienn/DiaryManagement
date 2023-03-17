@@ -3,7 +3,6 @@ from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
 from Feature import Feature
-from MessageCode import MessageCode
 
 def create_new_year_folder():
     if(not os.path.exists(config.this_year_dir)):

@@ -69,6 +69,6 @@ class Milestone(Feature):
         self.printTitle(self.year)
         super().printMenu(self.get_sub_menu())
         
-    def find(self, find_str, exact=True, case_sensitive=False, tokenize=False) -> None:
+    def find(self, find_str, exact, case_sensitive, tokenize) -> None:
         pass
     

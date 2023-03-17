@@ -25,7 +25,7 @@ class TextFile:
                 return self.__decrypt_lines_text(lines=list_of_lines, private_key=private_key)
             
         except (FileNotFoundError, FileExistsError):
-            return self.dir + " not found"
+            return "None"
         
     def write_file(self, text: str) -> None:
         # Get public key

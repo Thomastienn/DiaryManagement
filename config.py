@@ -1,5 +1,5 @@
 from datetime import datetime
-import time, os
+import time
 
 DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"

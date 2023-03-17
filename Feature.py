@@ -22,12 +22,25 @@ class Feature():
         pass
     
     @abstractmethod        
-    def find(self, find_str, exact=True, case_sensitive=False, tokenize=False) -> None:
+    def find(self, find_str, exact, case_sensitive, accent_mark) -> None:
         pass
+    
+    def find_all(self, origin: str, sub: str) -> list:
+        all_occurences = []
         
+        start = 0
+        while True:
+            index = origin.find(sub, start)
+            if index == -1:
+                break
+            
+            all_occurences.append(index)
+            start = index + 1
+        return all_occurences
+    
     def printMenu(self, menu: list) -> None:
         width = config.MENU_WIDTH
-        print(self.__class__.__name__.center(width, "-"))
+        self.printHeader(width)
         print("0. Exit")
         for i in range(len(menu)):
             print(str(i+1) + ". " + menu[i])
@@ -38,5 +51,8 @@ class Feature():
         print("-"*width)
         print(str(mes).center(width, " "))
         print("-"*width)
+        
+    def printHeader(self, width):
+        print(self.__class__.__name__.center(width, "-"))
         
     

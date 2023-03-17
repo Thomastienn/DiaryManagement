@@ -23,7 +23,40 @@ def read_main(main_reader: Feature):
     main_reader.navigate()
 
 def find_main(main_finder: Feature):
-    pass
+    # Default value
+    user_exact = False #22-12-2022 17-03-2023
+    user_case_sensitive = False
+    user_accent_mark = False
+    
+    def print_find_properties():
+        main_finder.printHeader(config.MENU_WIDTH)
+        print("1. EXACT: ", user_exact)
+        print("2. CASE SENSITIVE: ", user_case_sensitive)
+        print("3. ACCENT MARK: ", user_accent_mark)
+        print("-"*config.MENU_WIDTH)
+        print("0. START")
+        print("-"*config.MENU_WIDTH)
+    
+    while True:
+        os.system("cls")
+        print_find_properties()
+        user_chose = input("Set: ")
+        
+        if(user_chose == "0"):
+            need_find_str = input("Enter search str: ")
+            main_finder.find(need_find_str, exact=user_exact, 
+                             case_sensitive=user_case_sensitive,
+                             accent_mark=user_accent_mark)
+            break
+        if(user_chose == "1"):
+            user_exact = not user_exact
+        elif(user_chose == "2"):
+            user_case_sensitive = not user_case_sensitive
+        elif(user_chose == "3"):
+            user_accent_mark = not user_accent_mark
+        else:
+            break
+
 
 def milestone_main(feature: Feature):
     global current_feature
@@ -43,6 +76,8 @@ def end(feature: Feature):
         current_feature = main_diary
 
 options = {
+    # Features that all inherits
+    # the class has
     "0": end,
     "1": write_main,
     "2": read_main,

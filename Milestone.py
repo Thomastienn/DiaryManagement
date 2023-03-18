@@ -3,6 +3,8 @@ from datetime import datetime
 from Diary import Diary
 from Feature import Feature
 from TextFile import TextFile
+from unidecode import unidecode
+import config
 
 class Milestone(Feature):
     def __init__(self, diary: Diary, year: int) -> None:
@@ -69,6 +71,69 @@ class Milestone(Feature):
         self.printTitle(self.year)
         super().printMenu(self.get_sub_menu())
         
-    def find(self, find_str, exact, case_sensitive, tokenize) -> None:
-        pass
+    def find(self, find_str, exact, case_sensitive, accent_mark) -> None:
+        os.system("cls")
+        self.printHeader(config.MENU_WIDTH)
+        print("YYYY YYYY")
+        print("-"*config.MENU_WIDTH)
+        
+        user_range = input("Range: ")
+        start_end = user_range.split(" ")
+        start_year = int(start_end[0])
+        end_year = int(start_end[1])
+        
+        user_category = []
+        all_options = self.get_sub_menu()
+        
+        while(True):
+            os.system("cls")
+            print("-"*config.MENU_WIDTH)
+            print("Category: "," ".join(all_options))
+            print("Added: " + " ".join(user_category))
+            print("-"*config.MENU_WIDTH)
+            
+            if(len(user_category) == len(self.get_sub_menu())):
+                break
+            
+            user_choose_category = input("Choose category(num/a): ")
+            if(user_choose_category == ""):
+                break
+            if(user_choose_category == "a"):
+                user_category = self.get_sub_menu()
+                print("Added all")         
+                break
+            else:
+                try:
+                    user_category.append(all_options[int(user_choose_category)])
+                    del all_options[int(user_choose_category)]
+                except IndexError:
+                    continue
+                except (TypeError, ValueError):
+                    break
+            
+        
+        search_str = self.preprocess_find_str(
+            find_str=find_str,
+            case_sensitive=case_sensitive,
+            accent_mark=accent_mark,
+            exact=exact
+        )
+            
+        current_year = start_year
+        while current_year <= end_year:
+            for milestone_category in user_category:
+                file_name = milestone_category.replace(" ", "_")
+                file_dir = f"{config.DIARY_DIR}\\{current_year}\\Milestone\\{file_name}.txt"
+                
+                file_read = TextFile(full_dir = file_dir)
+                
+                self.process_find_in_text_file(
+                    find_file=file_read,
+                    search_str=search_str,
+                    accent_mark=accent_mark,
+                    case_sensitive=case_sensitive,
+                    title=f"{current_year}-{milestone_category}"
+                )
+                
+            current_year += 1
     

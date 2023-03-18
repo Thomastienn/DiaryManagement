@@ -2,13 +2,14 @@ import os, config
 from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
+from unidecode import unidecode
 
 class Diary(Feature):
     def __init__(self, dir: str) -> None:
         super().__init__(dir)
         
     def get_menu(self):
-        return ["Write", "Read", "Find", "Milestone", "Keys"]
+        return ["Write", "Read", "Find", "Milestone", "Keys", "Quote"]
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%H:%M:%S]") + ": "
@@ -60,12 +61,13 @@ class Diary(Feature):
         
         start_date = datetime.strptime(self.__to_format_datetime(start_end[0]), "%d-%m-%y")
         end_date = datetime.strptime(self.__to_format_datetime(start_end[1]), "%d-%m-%y")
-        
-        if(not case_sensitive):
-            find_str = find_str.lower()
-        search_str = [find_str]
-        if(not exact):
-            search_str = [word for word in find_str.split(" ")]
+            
+        search_str = self.preprocess_find_str(
+            find_str=find_str,
+            case_sensitive=case_sensitive,
+            accent_mark=accent_mark,
+            exact=exact
+        )
         
         # Retrieve text from diary
         # Process case sensitive
@@ -77,40 +79,12 @@ class Diary(Feature):
             current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
                                          file_name=cur_today_day_month)
             
-            all_text_day = current_date_file.decrypt_file()
-            if(not case_sensitive):
-                all_text_day = all_text_day.lower()
-                
-            for word in search_str:
-                found = self.find_all(all_text_day, word)
-                if(found != -1):
-                    all_lines_found = self.__index_occ_to_start_line(all_text_day, found)
-            if(all_lines_found):
-                date_title = f"{cur_today_day_month}-{cur_today_year}"
-                print(self.printTitle(date_title))
-                for line in all_lines_found:
-                    print(line)
-                print()
+            self.process_find_in_text_file(
+                find_file=current_date_file,
+                search_str=search_str,
+                accent_mark=accent_mark,
+                case_sensitive=case_sensitive,
+                title=f"{cur_today_day_month}-{cur_today_year}"
+            )
             
             current_date = current_date + timedelta(days=1)
-            
-    def __index_occ_to_start_line(self, text: str, occurences: list) -> list:
-        start_lines = []
-        end_lines = []
-        for occ in occurences:
-            start_line_index = occ
-            end_line_index = occ
-            
-            while(text[start_line_index] != "["):
-                start_line_index -= 1
-            while(text[end_line_index] != "\n"):
-                end_line_index += 1    
-                
-            start_lines.append(start_line_index)
-            end_lines.append(end_line_index)
-        
-        res = []
-        for start,end in zip(start_lines, end_lines):
-            res.append(text[start:end])
-            
-        return res

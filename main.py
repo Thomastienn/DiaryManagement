@@ -1,19 +1,14 @@
-import os, threading, config
+import os, threading, config, requests, json
 from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
 from Feature import Feature
-
-def create_new_year_folder():
-    if(not os.path.exists(config.this_year_dir)):
-        os.mkdir(config.this_year_dir)
 
 def write_main(main_writer: Feature):
     write_dir = main_writer.handle_selection_write()
     userText = input("Enter txt to write to file: ")
     
     if (userText):
-        create_new_year_folder()
         file_to_write = TextFile(full_dir = write_dir)
         file_to_write.write_file(main_writer.get_time_stamp() + userText)
     else:
@@ -24,7 +19,7 @@ def read_main(main_reader: Feature):
 
 def find_main(main_finder: Feature):
     # Default value
-    user_exact = False #22-12-2022 17-03-2023
+    user_exact = True #22-12-2022 17-03-2023
     user_case_sensitive = False
     user_accent_mark = False
     
@@ -75,6 +70,14 @@ def end(feature: Feature):
     else:
         current_feature = main_diary
 
+def quote_main(feature: Feature):
+    response = requests.get("https://api.quotable.io/random")
+    data = json.loads(response.text)
+    print("-"*config.MENU_WIDTH)
+    print("Author: " + data["author"])
+    print("Quote: " + "\"" + data["content"] + "\"")
+    print("-"*config.MENU_WIDTH)
+
 options = {
     # Features that all inherits
     # the class has
@@ -85,7 +88,8 @@ options = {
     
     # Features only in diary
     "4": milestone_main,
-    "5": find_main
+    "5": default,
+    "6": quote_main
 }  
     
 def run():
@@ -104,7 +108,7 @@ def run():
         current_feature.printMenu(current_feature.get_menu())
         
         user_input = input("Choose an option: ")
-        avail_options = (str(i) for i in range(len(current_feature.get_menu())))
+        avail_options = [str(i) for i in range(len(current_feature.get_menu()) + 1)]
         
         if(user_input in avail_options):
             options.get(user_input, default)(current_feature)

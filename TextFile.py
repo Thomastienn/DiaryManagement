@@ -1,5 +1,6 @@
 import rsa, ast, os
 import config
+from pathlib import Path
 
 class TextFile:
     def __init__(self, upper_dir: str = None, file_name: str = None, full_dir: str = None) -> None:
@@ -25,9 +26,13 @@ class TextFile:
                 return self.__decrypt_lines_text(lines=list_of_lines, private_key=private_key)
             
         except (FileNotFoundError, FileExistsError):
-            return "None"
+            return ""
         
     def write_file(self, text: str) -> None:
+        upper_path = os.path.dirname(Path(self.dir))
+        if(not os.path.exists(upper_path)):
+            os.mkdir(upper_path)
+        
         # Get public key
         with open(config.PUBLIC_KEYS_DIR, "rb") as key_file:
             public_key = rsa.PublicKey.load_pkcs1(key_file.read())

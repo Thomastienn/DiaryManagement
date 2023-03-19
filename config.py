@@ -3,7 +3,7 @@ import time
 
 DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"
-PRIVATE_KEYS_dir = f"{KEYS_DIR}\\private_key.pem"
+PRIVATE_KEYS_DIR = f"{KEYS_DIR}\\private_key.pem"
 PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
 MENU_WIDTH = 20
 TITLE_WIDTH = 20

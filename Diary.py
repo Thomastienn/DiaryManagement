@@ -1,8 +1,7 @@
-import os, config
+import os, config, calendar
 from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
-from unidecode import unidecode
 
 class Diary(Feature):
     def __init__(self, dir: str) -> None:
@@ -25,7 +24,7 @@ class Diary(Feature):
             cur_today_day_month, cur_today_year = self.__datetime_to_month_year(cur_today)
             cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
 
-            date_title = f"{cur_today_day_month}-{cur_today_year}"
+            date_title = f"{calendar.day_name[cur_today.weekday()]} {cur_today_day_month}-{cur_today_year}"
             self.printTitle(date_title)
             
             cur_today_file = TextFile(upper_dir=cur_today_file_upper_dir, file_name=cur_today_day_month)

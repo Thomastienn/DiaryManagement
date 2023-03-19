@@ -1,5 +1,6 @@
 from datetime import datetime
 import time
+from colorama import Fore, Back, Style
 
 DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"
@@ -7,6 +8,9 @@ PRIVATE_KEYS_DIR = f"{KEYS_DIR}\\private_key.pem"
 PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
 MENU_WIDTH = 20
 TITLE_WIDTH = 20
+
+HEADER_STYLE = Fore.RED + Style.BRIGHT
+
 
 today = datetime.now()
 today_day_month = today.strftime("%d-%m")

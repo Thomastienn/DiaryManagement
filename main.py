@@ -3,6 +3,7 @@ from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
 from Feature import Feature
+from colorama import init
 
 def write_main(main_writer: Feature):
     write_dir = main_writer.handle_selection_write()
@@ -117,5 +118,6 @@ def run():
         input()
 
 if __name__ == "__main__":
+    init(autoreset=True)
     run()
 

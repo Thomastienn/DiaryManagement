@@ -2,7 +2,7 @@ import config
 from abc import abstractmethod
 from TextFile import TextFile
 from unidecode import unidecode
-
+from colorama import Fore, Back, Style
 class Feature():
     def __init__(self, dir: str) -> None:
         self.dir = dir
@@ -46,7 +46,7 @@ class Feature():
         print("0. Exit")
         for i in range(len(menu)):
             print(str(i+1) + ". " + menu[i])
-        print("-"*width)
+        print(config.HEADER_STYLE + "-"*width)
 
     def printTitle(self, mes: str) -> None:
         width = config.TITLE_WIDTH
@@ -55,7 +55,7 @@ class Feature():
         print("-"*width)
         
     def printHeader(self, width):
-        print(self.__class__.__name__.center(width, "-"))
+        print(config.HEADER_STYLE + self.__class__.__name__.center(width, "-"))
      
     def preprocess_find_str(self, find_str, case_sensitive, accent_mark, exact) -> list:
         if(not case_sensitive):

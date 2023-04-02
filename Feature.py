@@ -2,7 +2,6 @@ import config
 from abc import abstractmethod
 from TextFile import TextFile
 from unidecode import unidecode
-from colorama import Fore, Back, Style
 class Feature():
     def __init__(self, dir: str) -> None:
         self.dir = dir
@@ -27,18 +26,19 @@ class Feature():
     def find(self, find_str, exact, case_sensitive, accent_mark) -> None:
         pass
     
-    def find_all(self, origin: str, sub: str) -> list:
-        all_occurences = []
+    def find_all(self, origin: str, list_sub: list) -> list:
+        all_occurences = set()
         
-        start = 0
-        while True:
-            index = origin.find(sub, start)
-            if index == -1:
-                break
-            
-            all_occurences.append(index)
-            start = index + 1
-        return all_occurences
+        for sub in list_sub:
+            start = 0
+            while True:
+                index = origin.find(sub, start)
+                if index == -1:
+                    break
+                
+                all_occurences.add(index)
+                start = index + 1
+        return list(all_occurences)
     
     def printMenu(self, menu: list) -> None:
         width = config.MENU_WIDTH
@@ -62,14 +62,18 @@ class Feature():
             find_str = find_str.lower()
         if(not accent_mark):
             find_str = unidecode(find_str)
-        search_str = [find_str]
+        search_str = []
         if(not exact):
-            search_str = [word for word in find_str.split(" ")]
+            search_str = find_str.split(" ")
+        else:
+            search_str.append(find_str)
             
         return search_str
        
     def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title) -> None:
         all_text_day = find_file.decrypt_file()
+        if(not all_text_day):
+            return
         immutable_all_text_day = all_text_day
         if(not accent_mark):
             all_text_day = unidecode(all_text_day)
@@ -77,15 +81,14 @@ class Feature():
         if(not case_sensitive):
             all_text_day = all_text_day.lower()
             
-        for word in search_str:
-            found = self.find_all(all_text_day, word)
-            if(found != -1):
-                all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found)
-        if(all_lines_found):
-            print(self.printTitle(title))
-            for line in all_lines_found:
-                print(line)
-            print()
+        found = self.find_all(all_text_day, search_str)
+        if(len(found) != 0):
+            all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found)
+            if(all_lines_found):
+                print(self.printTitle(title))
+                for line in all_lines_found:
+                    print(line)
+                print()
         
     def index_occ_to_start_line(self, text: str, occurences: list) -> list:
         start_lines = []

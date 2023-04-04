@@ -45,7 +45,7 @@ class Feature():
         self.printHeader(width)
         print("0. Exit")
         for i in range(len(menu)):
-            print(str(i+1) + ". " + menu[i])
+            print(config.FUNCTION_STYLE + str(i+1) + ". " + menu[i])
         print(config.HEADER_STYLE + "-"*width)
 
     def printTitle(self, mes: str) -> None:
@@ -84,11 +84,10 @@ class Feature():
         found = self.find_all(all_text_day, search_str)
         if(len(found) != 0):
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found)
-            if(all_lines_found):
-                print(self.printTitle(title))
-                for line in all_lines_found:
-                    print(line)
-                print()
+            print(self.printTitle(title))
+            for line in all_lines_found:
+                print(line)
+            print()
         
     def index_occ_to_start_line(self, text: str, occurences: list) -> list:
         start_lines = []

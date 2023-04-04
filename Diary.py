@@ -58,8 +58,17 @@ class Diary(Feature):
         
         start_end = user_range.split(" ")
         
-        start_date = datetime.strptime(self.__to_format_datetime(start_end[0]), "%d-%m-%y")
-        end_date = datetime.strptime(self.__to_format_datetime(start_end[1]), "%d-%m-%y")
+        start = start_end[0]
+        if(start in config.shortcut_date):
+            start_date = config.shortcut_date.get(start)
+        else:
+            start_date = datetime.strptime(self.__to_format_datetime(start), "%d-%m-%y")
+        
+        end = start_end[1]
+        if(end in config.shortcut_date):
+            end_date = config.shortcut_date.get(end)
+        else:
+            end_date = datetime.strptime(self.__to_format_datetime(end), "%d-%m-%y")
             
         search_str = self.preprocess_find_str(
             find_str=find_str,
@@ -72,6 +81,7 @@ class Diary(Feature):
         # Process case sensitive
         # Find the str
         current_date = start_date
+        end_date = end_date+timedelta(days=1)
         while current_date != end_date:
             cur_today_day_month, cur_today_year = self.__datetime_to_month_year(current_date)
             cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year

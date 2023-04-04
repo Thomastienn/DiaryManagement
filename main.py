@@ -26,11 +26,11 @@ def find_main(main_finder: Feature):
     
     def print_find_properties():
         main_finder.printHeader(config.MENU_WIDTH)
-        print("1. EXACT: ", user_exact)
-        print("2. CASE SENSITIVE: ", user_case_sensitive)
-        print("3. ACCENT MARK: ", user_accent_mark)
+        print("1. EXACT: ", config.select_bool_style(user_exact))
+        print("2. CASE SENSITIVE: ", config.select_bool_style(user_case_sensitive))
+        print("3. ACCENT MARK: ", config.select_bool_style(user_accent_mark))
         print("-"*config.MENU_WIDTH)
-        print("0. START")
+        print(config.FUNCTION_STYLE + "0. START")
         print("-"*config.MENU_WIDTH)
     
     while True:
@@ -40,9 +40,10 @@ def find_main(main_finder: Feature):
         
         if(user_chose == "0"):
             need_find_str = input("Enter search str: ")
-            main_finder.find(need_find_str, exact=user_exact, 
-                             case_sensitive=user_case_sensitive,
-                             accent_mark=user_accent_mark)
+            if(need_find_str):
+                main_finder.find(need_find_str, exact=user_exact, 
+                                case_sensitive=user_case_sensitive,
+                                accent_mark=user_accent_mark)
             break
         if(user_chose == "1"):
             user_exact = not user_exact

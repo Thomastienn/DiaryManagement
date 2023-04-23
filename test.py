@@ -1,8 +1,8 @@
-a = 3
-
-if(a%2==0):
-    b=5
-else:
-    b=2
+line = input()
+res = ""
+while line:
+    res += line    
+    line = input()
     
-print(b)
+print(res)
+    

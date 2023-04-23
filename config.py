@@ -10,11 +10,14 @@ MENU_WIDTH = 20
 TITLE_WIDTH = 20
 
 HEADER_STYLE = Fore.CYAN + Style.BRIGHT
+INVALID_HEADER_STYLE = Fore.RED + Style.BRIGHT
+
 TRUE_STYLE = Fore.GREEN + Style.BRIGHT
 FALSE_STYLE = Fore.RED + Style.BRIGHT
 FUNCTION_STYLE = Fore.WHITE
 
 update_running_thread = True
+has_valid_key = True
 
 def init_update():
     global today,today_day_month, current_year, today_file_dir, today_day_month, this_year_dir, shortcut_date
@@ -33,6 +36,9 @@ def init_update():
     }
 
 init_update()
+
+def select_valid_header_style():
+    return HEADER_STYLE if has_valid_key else INVALID_HEADER_STYLE
 
 def select_bool_style(boolean: bool):
     style = TRUE_STYLE if boolean else FALSE_STYLE

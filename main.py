@@ -1,9 +1,10 @@
-import os, threading, config, requests, json
+import os, threading, config, rsa
 from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
 from Feature import Feature
 from colorama import init
+from pyasn1.error import SubstrateUnderrunError
 
 def write_main(main_writer: Feature):
     write_dir = main_writer.handle_selection_write()
@@ -16,9 +17,16 @@ def write_main(main_writer: Feature):
         print("Empty message")
 
 def read_main(main_reader: Feature):
+    if(not config.has_valid_key):
+        print("Don't be sneaky")
+        return
     main_reader.navigate()
 
 def find_main(main_finder: Feature):
+    if(not config.has_valid_key):
+        print("Don't be sneaky")
+        return
+    
     # Default value
     user_exact = True #22-12-2022 17-03-2023
     user_case_sensitive = False
@@ -72,13 +80,34 @@ def end(feature: Feature):
     else:
         current_feature = main_diary
 
-def quote_main(feature: Feature):
-    response = requests.get("https://api.quotable.io/random")
-    data = json.loads(response.text)
-    print("-"*config.MENU_WIDTH)
-    print("Author: " + data["author"])
-    print("Quote: " + "\"" + data["content"] + "\"")
-    print("-"*config.MENU_WIDTH)
+def insert_key(feature: Feature):
+    print("Enter your key: ")
+    
+    line = input()
+    res = ""
+    while line:
+        res += line + "\n"    
+        line = input()
+        
+    with open(config.PRIVATE_KEYS_DIR, 'w') as key_file:
+        key_file.write(res)
+    
+    check_key_valid()
+    
+def remove_key(feature: Feature):
+    with open(config.PRIVATE_KEYS_DIR, 'w') as key_file:
+        key_file.truncate(0)
+    print("Delete successfully!")
+    
+    config.has_valid_key = False
+
+def check_key_valid():
+    config.has_valid_key = True
+    try:
+        with open(config.PRIVATE_KEYS_DIR, 'rb') as key_file:
+            rsa.PrivateKey.load_pkcs1(key_file.read())
+    except (ValueError, SubstrateUnderrunError):
+        config.has_valid_key = False
 
 options = {
     # Features that all inherits
@@ -90,8 +119,8 @@ options = {
     
     # Features only in diary
     "4": milestone_main,
-    "5": default,
-    "6": quote_main
+    "5": insert_key,
+    "6": remove_key,
 }  
     
 def run():
@@ -105,6 +134,9 @@ def run():
     main_milestone = Milestone(diary=main_diary,year=int(config.current_year))
     
     current_feature = main_diary
+    
+    check_key_valid()
+
     while True:
         os.system('cls')
         current_feature.printMenu(current_feature.get_menu())

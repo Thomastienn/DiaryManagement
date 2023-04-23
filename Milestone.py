@@ -53,7 +53,9 @@ class Milestone(Feature):
         read_file = TextFile(upper_dir=self.dir, file_name=file_name)
         
         decrypted_message = read_file.decrypt_file()
-        print(decrypted_message)
+        
+        if(decrypted_message):
+            print(decrypted_message)
         
     def navigate(self) -> None:
         while True:

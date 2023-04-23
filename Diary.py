@@ -8,7 +8,7 @@ class Diary(Feature):
         super().__init__(dir)
         
     def get_menu(self):
-        return ["Write", "Read", "Find", "Milestone", "Keys", "Quote"]
+        return ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key"]
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%H:%M:%S]") + ": "
@@ -30,7 +30,8 @@ class Diary(Feature):
             cur_today_file = TextFile(upper_dir=cur_today_file_upper_dir, file_name=cur_today_day_month)
             
             decrypted_message = cur_today_file.decrypt_file()
-            print(decrypted_message)
+            if(decrypted_message):
+                print(decrypted_message)
 
             user_choose = input("NAV: ")
             if(user_choose == "a"):

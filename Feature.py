@@ -46,7 +46,7 @@ class Feature():
         print("0. Exit")
         for i in range(len(menu)):
             print(config.FUNCTION_STYLE + str(i+1) + ". " + menu[i])
-        print(config.HEADER_STYLE + "-"*width)
+        print(config.select_valid_header_style() + "-"*width)
 
     def printTitle(self, mes: str) -> None:
         width = config.TITLE_WIDTH
@@ -55,7 +55,7 @@ class Feature():
         print("-"*width)
         
     def printHeader(self, width):
-        print(config.HEADER_STYLE + self.__class__.__name__.center(width, "-"))
+        print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
      
     def preprocess_find_str(self, find_str, case_sensitive, accent_mark, exact) -> list:
         if(not case_sensitive):
@@ -98,16 +98,20 @@ class Feature():
             
             while(text[start_line_index] != "["):
                 start_line_index -= 1
-            while(text[end_line_index] != "\n"):
-                end_line_index += 1    
+                
+            try:
+                while(text[end_line_index] != "["):
+                    end_line_index += 1    
+            except IndexError:
+                end_line_index -= 1    
                 
             start_lines.append(start_line_index)
             end_lines.append(end_line_index)
         
-        res = []
+        res = set()
         for start,end in zip(start_lines, end_lines):
-            res.append(text[start:end])
+            res.add(text[start:end])
             
-        return res
+        return list(res)
         
     

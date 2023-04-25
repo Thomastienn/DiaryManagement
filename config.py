@@ -17,6 +17,7 @@ FALSE_STYLE = Fore.RED + Style.BRIGHT
 NONE_STYLE = Fore.LIGHTWHITE_EX + Style.DIM
 
 FUNCTION_STYLE = Fore.WHITE
+TIMESTAMP_STYLE = Fore.YELLOW
 
 update_running_thread = True
 has_valid_key = True
@@ -29,9 +30,11 @@ normalize_language_with_accent_mark = {
     "zị": "vị",
     "zữ": "dữ",
     "zũ": "vũ",
+    "zãi": "vãi",
     "típ": "tiếp",
     "hỉu": "hiểu",
     "cừi": "cười",
+    "cúi": "cuối",
     "mụt": "một",
     "nhìu": "nhiều",
     "nhiu": "nhiêu",
@@ -49,6 +52,7 @@ normalize_language_with_accent_mark = {
     "zẫn": "vẫn",
     "củm": "cảm",
     "ló": "nó",
+    "lúm": "lắm",
     "chìu": "chiều",
     "xợ": "sợ",
     "bụn": "bụng",
@@ -56,8 +60,13 @@ normalize_language_with_accent_mark = {
     "qên": "quên",
     "ngụ": "ngủ",
     "đọ": "đó",
+    "dứi": "dưới",
     "nớp": "lớp",
     "nụa": "nữa",
+    "gùi": "rồi",
+    "kím": "kiếm",
+    "gớt": "rớt",
+    "đth": "điện thoại",
 }
 
 normalize_language_no_accent_mark = {
@@ -77,6 +86,7 @@ normalize_language_no_accent_mark = {
     "ckac": "chắc",
     "dc": "được",
     "dr": "đúng rồi",
+    "droi": "đúng rồi",
     "ei": "ê",
     "ga": "ra",
     "goi": "roi",
@@ -86,19 +96,22 @@ normalize_language_no_accent_mark = {
     "hog": "không",
     "hok": "học",
     "hec": "hết",
+    "hme": "hề",
     "koi": "coi",
     "ktra": "kiểm tra",
     "loi": "nói",
     "lun": "luôn",
     "liu": "liệu",
     "lay": "nay",
-    "lum": "lắm",
     "ms": "mới",
+    "mng": "mọi người",
     "mec": "mệt",
     "min": "mình",
     "ng": "người",
+    "nc": "nước",
     "nka": "nha",
     "nhma": "nhưng mà",
+    "nhao": "nhau",
     "pay": "bay",
     "pa": "ba",
     "pan": "ban",
@@ -107,6 +120,8 @@ normalize_language_no_accent_mark = {
     "kon": "con",
     "qa": "qua",
     "qen": "quen",
+    "qcao": "quảng cáo",
+    "quánh": "đánh",
     "sn": "sinh nhật",
     "sou": "sầu",
     "thiec": "thiệt",

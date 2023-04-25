@@ -22,7 +22,7 @@ class Milestone(Feature):
         return ["Write", "Read", "Find"]
     
     def get_sub_menu(self) -> list:
-        return ["SONGS", "MOVIES", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
+        return ["SONGS", "MOVIES", "BOOKS", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%d/%m/20%y %H:%M:%S]") + ": "
@@ -55,7 +55,7 @@ class Milestone(Feature):
         decrypted_message = read_file.decrypt_file()
         
         if(decrypted_message):
-            print(decrypted_message)
+            self.process_print_decryped(decrypted_message)
         
     def navigate(self) -> None:
         while True:
@@ -66,6 +66,7 @@ class Milestone(Feature):
             if(user_chose != "0"):
                 self.__process_user_choose(user_chose)
             else:
+                self.change_year(int(config.current_year))
                 break
             input("Press anything to continue...")
     

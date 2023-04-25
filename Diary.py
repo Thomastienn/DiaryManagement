@@ -33,10 +33,10 @@ class Diary(Feature):
             
             decrypted_message = cur_today_file.decrypt_file()
             if(decrypted_message):
+                text = decrypted_message
                 if(config.use_normalize_text):
-                    print(self.normalize_text(decrypted_message))
-                else:
-                    print(decrypted_message)
+                    text = (self.normalize_text(decrypted_message))
+                self.process_print_decryped(text)
 
             user_choose = input("NAV: ")
             if(user_choose == "a"):

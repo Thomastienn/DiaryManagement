@@ -45,7 +45,7 @@ class Feature():
         self.printHeader(width)
         print(config.select_valid_header_style() + "0 |" + config.FUNCTION_STYLE + " Exit")
         for i in range(len(menu)):
-            print(config.select_valid_header_style() + str(i+1) + " | " + config.FUNCTION_STYLE + menu[i])
+            print(config.select_valid_header_style() + str(i+1) + (" " if (i+1) < 10 else "") + "| " + config.FUNCTION_STYLE + menu[i])
         print(config.select_valid_header_style() + "-"*width)
 
     def printTitle(self, mes: str) -> None:
@@ -56,6 +56,22 @@ class Feature():
         
     def printHeader(self, width):
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
+     
+    def process_print_decryped(self, text):
+        lines = text.split("\n")
+        for line in lines:
+            if(line):
+                if(line[0] == "["):
+                    try:
+                        timestamp, content = line.split("]:", maxsplit=1)
+                    except ValueError:
+                        timestamp, content = line.split("]", maxsplit=1)
+                        
+                    print("\n" + config.TIMESTAMP_STYLE + timestamp + "]:", end="")
+                    print(content, end="")
+                else:
+                    print(line, end="")
+        print("\n") 
      
     # In development
     def normalize_text(self, text: str) -> str:

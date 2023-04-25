@@ -43,9 +43,9 @@ class Feature():
     def printMenu(self, menu: list) -> None:
         width = config.MENU_WIDTH
         self.printHeader(width)
-        print("0. Exit")
+        print(config.select_valid_header_style() + "0 |" + config.FUNCTION_STYLE + " Exit")
         for i in range(len(menu)):
-            print(config.FUNCTION_STYLE + str(i+1) + ". " + menu[i])
+            print(config.select_valid_header_style() + str(i+1) + " | " + config.FUNCTION_STYLE + menu[i])
         print(config.select_valid_header_style() + "-"*width)
 
     def printTitle(self, mes: str) -> None:
@@ -56,6 +56,12 @@ class Feature():
         
     def printHeader(self, width):
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
+     
+    # In development
+    def normalize_text(self, text: str) -> str:
+        new_text = ' '.join([config.normalize_language_with_accent_mark.get(word.lower(), word) for word in text.split(" ")])
+        final_text = ' '.join([config.normalize_language_no_accent_mark.get(unidecode(word).lower(), word) for word in new_text.split(" ")])
+        return final_text
      
     def preprocess_find_str(self, find_str, case_sensitive, accent_mark, exact) -> list:
         if(not case_sensitive):

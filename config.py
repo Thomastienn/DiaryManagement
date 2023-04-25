@@ -14,10 +14,121 @@ INVALID_HEADER_STYLE = Fore.RED + Style.BRIGHT
 
 TRUE_STYLE = Fore.GREEN + Style.BRIGHT
 FALSE_STYLE = Fore.RED + Style.BRIGHT
+NONE_STYLE = Fore.LIGHTWHITE_EX + Style.DIM
+
 FUNCTION_STYLE = Fore.WHITE
 
 update_running_thread = True
 has_valid_key = True
+use_normalize_text = False
+
+normalize_language_with_accent_mark = {
+    "bùn": "buồn",
+    "đãk": "đã",
+    "qá": "quá",
+    "zị": "vị",
+    "zữ": "dữ",
+    "zũ": "vũ",
+    "típ": "tiếp",
+    "hỉu": "hiểu",
+    "cừi": "cười",
+    "mụt": "một",
+    "nhìu": "nhiều",
+    "nhiu": "nhiêu",
+    "qá": "quá",
+    "xún": "xuống",
+    "lừi": "lười",
+    "chiện": "chuyện",
+    "gòi": "rồi",
+    "gữi": "rưỡi",
+    "lứt": "lướt",
+    "pạn": "bạn",
+    "pán": "bán",
+    "pắn": "bắn",
+    "pàn": "bàn",
+    "zẫn": "vẫn",
+    "củm": "cảm",
+    "ló": "nó",
+    "chìu": "chiều",
+    "xợ": "sợ",
+    "bụn": "bụng",
+    "tìn": "tiền",
+    "qên": "quên",
+    "ngụ": "ngủ",
+    "đọ": "đó",
+    "nớp": "lớp",
+    "nụa": "nữa",
+}
+
+normalize_language_no_accent_mark = {
+    "ac": "acc",
+    "ang": "ăn",
+    "bt": "bài tập",
+    "byt": "buýt",
+    "bic": "biết",
+    "chs": "chơi",
+    "coa": "có",
+    "cgi": "cái gì",
+    "cnhat": "chủ nhật",
+    "ch": "chưa",
+    "chug": "chung",
+    "cum": "cũng",
+    "cko": "cho",
+    "ckac": "chắc",
+    "dc": "được",
+    "dr": "đúng rồi",
+    "ei": "ê",
+    "ga": "ra",
+    "goi": "roi",
+    "gut": "rút",
+    "gke": "ghê",
+    "h": "giờ",
+    "hog": "không",
+    "hok": "học",
+    "hec": "hết",
+    "koi": "coi",
+    "ktra": "kiểm tra",
+    "loi": "nói",
+    "lun": "luôn",
+    "liu": "liệu",
+    "lay": "nay",
+    "lum": "lắm",
+    "ms": "mới",
+    "mec": "mệt",
+    "min": "mình",
+    "ng": "người",
+    "nka": "nha",
+    "nhma": "nhưng mà",
+    "pay": "bay",
+    "pa": "ba",
+    "pan": "ban",
+    "khom": "không",
+    "ko": "không",
+    "kon": "con",
+    "qa": "qua",
+    "qen": "quen",
+    "sn": "sinh nhật",
+    "sou": "sầu",
+    "thiec": "thiệt",
+    "trc": "trước",
+    "thg": "thang",
+    "tar": "ta",
+    "tr": "trời",
+    "thoy": "thôi",
+    "th": "thôi",
+    "un": "uống",
+    "xog": "xong",
+    "ze": "ve",
+    "zu": "du",
+    "zo": "vô",
+    "ziet": "viet",
+    "zoi": "với",
+    "zi": "gì",
+    "z": "vậy",
+    "zay": "vậy",
+    "zua": "vua",
+}
+
 
 def init_update():
     global today,today_day_month, current_year, today_file_dir, today_day_month, this_year_dir, shortcut_date
@@ -30,7 +141,7 @@ def init_update():
 
     shortcut_date = {
         "s": datetime(year=2022, month=12, day=21),
-        "td": today,
+        "td": datetime(year=int(current_year), month=today.month, day=today.day),
         "sy": datetime(year=int(current_year), month=1, day=1),
         "sm": datetime(year=int(current_year), month=int(today.strftime("%m")), day=1),
     }
@@ -40,9 +151,16 @@ init_update()
 def select_valid_header_style():
     return HEADER_STYLE if has_valid_key else INVALID_HEADER_STYLE
 
-def select_bool_style(boolean: bool):
-    style = TRUE_STYLE if boolean else FALSE_STYLE
-    return style + str(boolean)
+def select_bool_style(boolean: bool, returnText: bool = True):
+    if(boolean is None):
+        style = NONE_STYLE
+    else:
+        style = TRUE_STYLE if boolean else FALSE_STYLE
+    
+    if(returnText):
+        style += str(boolean)
+        
+    return style
 
 def stop_all_thread():
     global update_running_thread

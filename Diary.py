@@ -8,7 +8,9 @@ class Diary(Feature):
         super().__init__(dir)
         
     def get_menu(self):
-        return ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key"]
+        return ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key",
+                config.select_bool_style(config.use_normalize_text, False) + "Normalization",
+                config.select_bool_style(None, False) + "Translation"]
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%H:%M:%S]") + ": "
@@ -31,7 +33,10 @@ class Diary(Feature):
             
             decrypted_message = cur_today_file.decrypt_file()
             if(decrypted_message):
-                print(decrypted_message)
+                if(config.use_normalize_text):
+                    print(self.normalize_text(decrypted_message))
+                else:
+                    print(decrypted_message)
 
             user_choose = input("NAV: ")
             if(user_choose == "a"):

@@ -5,6 +5,7 @@ from TextFile import TextFile
 from Feature import Feature
 from colorama import init
 from pyasn1.error import SubstrateUnderrunError
+from googletrans import Translator
 
 def write_main(main_writer: Feature):
     write_dir = main_writer.handle_selection_write()
@@ -37,9 +38,9 @@ def find_main(main_finder: Feature):
         print("1. EXACT: ", config.select_bool_style(user_exact))
         print("2. CASE SENSITIVE: ", config.select_bool_style(user_case_sensitive))
         print("3. ACCENT MARK: ", config.select_bool_style(user_accent_mark))
-        print("-"*config.MENU_WIDTH)
+        print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         print(config.FUNCTION_STYLE + "0. START")
-        print("-"*config.MENU_WIDTH)
+        print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
     
     while True:
         os.system("cls")
@@ -97,7 +98,7 @@ def insert_key(feature: Feature):
 def remove_key(feature: Feature):
     with open(config.PRIVATE_KEYS_DIR, 'w') as key_file:
         key_file.truncate(0)
-    print("Delete successfully!")
+    print("Delete successfully!\n")
     
     config.has_valid_key = False
 
@@ -109,6 +110,13 @@ def check_key_valid():
     except (ValueError, SubstrateUnderrunError):
         config.has_valid_key = False
 
+def toggle_translation(feature: Feature):
+    translator = Translator()
+
+def toggle_normalize_text(feature: Feature):
+    config.use_normalize_text = not config.use_normalize_text
+    print("Toggle successfully!\n")
+    
 options = {
     # Features that all inherits
     # the class has
@@ -121,6 +129,8 @@ options = {
     "4": milestone_main,
     "5": insert_key,
     "6": remove_key,
+    "7": toggle_normalize_text,
+    "8": toggle_translation,
 }  
     
 def run():

@@ -2,6 +2,7 @@ import config
 from abc import abstractmethod
 from TextFile import TextFile
 from unidecode import unidecode
+import storage
 class Feature():
     def __init__(self, dir: str) -> None:
         self.dir = dir
@@ -48,11 +49,11 @@ class Feature():
             print(config.select_valid_header_style() + str(i+1) + (" " if (i+1) < 10 else "") + "| " + config.FUNCTION_STYLE + menu[i])
         print(config.select_valid_header_style() + "-"*width)
 
-    def printTitle(self, mes: str) -> None:
+    def printTitle(self, mes: str, style=config.DEFAULT_STYLE) -> None:
         width = config.TITLE_WIDTH
-        print("-"*width)
-        print(str(mes).center(width, " "))
-        print("-"*width)
+        print(style + "-"*width)
+        print(style + str(mes).center(width, " "))
+        print(style + "-"*width)
         
     def printHeader(self, width):
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
@@ -75,8 +76,8 @@ class Feature():
      
     # In development
     def normalize_text(self, text: str) -> str:
-        new_text = ' '.join([config.normalize_language_with_accent_mark.get(word.lower(), word) for word in text.split(" ")])
-        final_text = ' '.join([config.normalize_language_no_accent_mark.get(unidecode(word).lower(), word) for word in new_text.split(" ")])
+        new_text = ' '.join([config.TRUE_STYLE + storage.normalize_language_with_accent_mark.get(word.lower(), config.DEFAULT_STYLE + word) for word in text.split(" ")])
+        final_text = ' '.join([config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(word).lower(), config.DEFAULT_STYLE + word) for word in new_text.split(" ")])
         return final_text
      
     def preprocess_find_str(self, find_str, case_sensitive, accent_mark, exact) -> list:
@@ -106,10 +107,8 @@ class Feature():
         found = self.find_all(all_text_day, search_str)
         if(len(found) != 0):
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found)
-            print(self.printTitle(title))
-            for line in all_lines_found:
-                print(line)
-            print()
+            self.printTitle(title, style=config.DAYTIME_STYLE)
+            self.process_print_decryped("\n".join(all_lines_found))
         
     def index_occ_to_start_line(self, text: str, occurences: list) -> list:
         start_lines = []

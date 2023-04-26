@@ -1,6 +1,6 @@
-try:
-    user_milestone_select = int(input("Choose: "))
-except:
-    user_milestone_select = 0
-    
-print(user_milestone_select)
+import config 
+word = "Hi"
+
+a = config.normalize_language_with_accent_mark.get(word.lower())
+
+print(a)

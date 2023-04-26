@@ -27,7 +27,7 @@ class Diary(Feature):
             cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
 
             date_title = f"{calendar.day_name[cur_today.weekday()]} {cur_today_day_month}-{cur_today_year}"
-            self.printTitle(date_title)
+            self.printTitle(date_title, style=config.DAYTIME_STYLE)
             
             cur_today_file = TextFile(upper_dir=cur_today_file_upper_dir, file_name=cur_today_day_month)
             
@@ -59,7 +59,7 @@ class Diary(Feature):
         os.system("cls")
         self.printHeader(config.MENU_WIDTH)
         print("DD-MM-YYYY DD-MM-YYYY")
-        print("-"*config.MENU_WIDTH)
+        print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         user_range = input("Range: ")
         
         start_end = user_range.split(" ")

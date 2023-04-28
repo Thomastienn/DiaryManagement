@@ -3,6 +3,7 @@ from abc import abstractmethod
 from TextFile import TextFile
 from unidecode import unidecode
 import storage
+from autocorrect import Speller
 class Feature():
     def __init__(self, dir: str) -> None:
         self.dir = dir
@@ -29,6 +30,7 @@ class Feature():
     
     def find_all(self, origin: str, list_sub: list) -> list:
         all_occurences = set()
+        words = set()
         
         for sub in list_sub:
             start = 0
@@ -38,8 +40,9 @@ class Feature():
                     break
                 
                 all_occurences.add(index)
+                words.add(sub)
                 start = index + 1
-        return list(all_occurences)
+        return list((list(all_occurences), list(words)))
     
     def printMenu(self, menu: list) -> None:
         width = config.MENU_WIDTH
@@ -76,10 +79,24 @@ class Feature():
      
     # In development
     def normalize_text(self, text: str) -> str:
-        new_text = ' '.join([config.TRUE_STYLE + storage.normalize_language_with_accent_mark.get(word.lower(), config.DEFAULT_STYLE + word) for word in text.split(" ")])
-        final_text = ' '.join([config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(word).lower(), config.DEFAULT_STYLE + word) for word in new_text.split(" ")])
-        return final_text
-     
+        # new_text = [storage.normalize_language_with_accent_mark.get(word.lower(), word) for word in text.split(" ")]
+        # res_text = ' '.join([config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(word).lower(), config.DEFAULT_STYLE + word) for word in new_text])
+        
+        final = []
+        for word in text.split(" "):
+            res = storage.normalize_language_with_accent_mark.get(word.lower())
+            if(res is None):
+                res = storage.normalize_language_no_accent_mark.get(unidecode(word).lower())
+
+                res = (config.TRUE_STYLE + res + config.FALSE_STYLE + "(" + word + ")") if res is not None else (config.DEFAULT_STYLE + word)
+            else:
+                res = config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(res).lower() , res) + config.FALSE_STYLE + "(" + word + ")"
+                
+            final.append(res)
+
+        
+        return " ".join(final)
+    
     def preprocess_find_str(self, find_str, case_sensitive, accent_mark, exact) -> list:
         if(not case_sensitive):
             find_str = find_str.lower()
@@ -104,13 +121,13 @@ class Feature():
         if(not case_sensitive):
             all_text_day = all_text_day.lower()
             
-        found = self.find_all(all_text_day, search_str)
+        found, words = self.find_all(all_text_day, search_str)
         if(len(found) != 0):
-            all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found)
+            all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found, words)
             self.printTitle(title, style=config.DAYTIME_STYLE)
             self.process_print_decryped("\n".join(all_lines_found))
         
-    def index_occ_to_start_line(self, text: str, occurences: list) -> list:
+    def index_occ_to_start_line(self, text: str, occurences: list, words: list) -> list:
         start_lines = []
         end_lines = []
         for occ in occurences:
@@ -130,8 +147,8 @@ class Feature():
             end_lines.append(end_line_index)
         
         res = set()
-        for start,end in zip(start_lines, end_lines):
-            res.add(text[start:end])
+        for start, end, occ, words in zip(start_lines, end_lines, occurences, words):
+            res.add(text[start:occ] + config.FOUND_STYLE + text[occ:occ + len(words)] + config.DEFAULT_STYLE + text[occ + len(words): end])
             
         return list(res)
         

@@ -32,12 +32,14 @@ def find_main(main_finder: Feature):
     user_exact = True #22-12-2022 17-03-2023
     user_case_sensitive = False
     user_accent_mark = False
+    user_normalization = True
     
     def print_find_properties():
         main_finder.printHeader(config.MENU_WIDTH)
         print("1. EXACT: ", config.select_bool_style(user_exact))
         print("2. CASE SENSITIVE: ", config.select_bool_style(user_case_sensitive))
         print("3. ACCENT MARK: ", config.select_bool_style(user_accent_mark))
+        print("4. NORMALIZATION (Not avail): ", config.select_bool_style(user_normalization))
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         print(config.FUNCTION_STYLE + "0. START")
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
@@ -60,6 +62,8 @@ def find_main(main_finder: Feature):
             user_case_sensitive = not user_case_sensitive
         elif(user_chose == "3"):
             user_accent_mark = not user_accent_mark
+        elif(user_chose == "4"):
+            user_normalization = not user_normalization
         else:
             break
 

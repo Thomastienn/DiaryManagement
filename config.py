@@ -22,6 +22,8 @@ TIMESTAMP_STYLE = Fore.YELLOW + Style.BRIGHT
 DAYTIME_STYLE = Fore.BLUE + Style.BRIGHT
 DEFAULT_STYLE = Style.RESET_ALL
 
+PEOPLE_STYLE = Fore.BLUE + Style.BRIGHT
+
 update_running_thread = True
 has_valid_key = True
 use_normalize_text = False

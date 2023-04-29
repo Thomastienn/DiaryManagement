@@ -68,13 +68,28 @@ class Diary(Feature):
         if(start in config.shortcut_date):
             start_date = config.shortcut_date.get(start)
         else:
-            start_date = datetime.strptime(self.__to_format_datetime(start), "%d-%m-%y")
+            # Format: yYYYY 
+            # Ex: y2022
+            if(start[0] == "y"):
+                start_date = datetime(day=1, month=1, year=int(start[1:]))
+            elif(start[0] == "m"):
+                start_date = datetime(day=1, month=int(start[1:]), year=int(config.current_year))
+            else:
+                start_date = datetime.strptime(self.__to_format_datetime(start), "%d-%m-%y")
         
         end = start_end[1]
         if(end in config.shortcut_date):
             end_date = config.shortcut_date.get(end)
         else:
-            end_date = datetime.strptime(self.__to_format_datetime(end), "%d-%m-%y")
+            if(end[0] == "y"):
+                end_date = datetime(day=1, month=1, year=int(end[1:] + 1))
+            elif(end[0] == "m"):
+                next_month = int(end[1:]) + 1
+                if(next_month == 13):
+                    next_month = 1
+                end_date = datetime(day=1, month=next_month, year=int(config.current_year))
+            else:
+                end_date = datetime.strptime(self.__to_format_datetime(end), "%d-%m-%y")
             
         search_str = self.preprocess_find_str(
             find_str=find_str,

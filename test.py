@@ -1,7 +1,8 @@
-a = [1,2,3]
-b=[4,5,6]
-c=[7,8,9]
+import requests, os
 
-for x,y,z in zip(a,b,c):
-    print(x,y,z)
-    
+requests.post('https://api.mynotifier.app', {
+    "apiKey": os.environ(MYNOTIFIER_API_KEY),
+    "message": "Test",
+    "description": "Test",
+    "type": "info", # info, error, warning or success
+})

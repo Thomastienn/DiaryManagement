@@ -126,6 +126,8 @@ class Feature():
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found, words)
             self.printTitle(title, style=config.DAYTIME_STYLE)
             self.process_print_decryped("\n".join(all_lines_found))
+        else:
+            print(config.NONE_STYLE + title + " NONE")
         
     def index_occ_to_start_line(self, text: str, occurences: list, words: list) -> list:
         start_lines = []

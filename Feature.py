@@ -30,7 +30,7 @@ class Feature():
     
     def find_all(self, origin: str, list_sub: list) -> list:
         all_occurences = set()
-        words = set()
+        words = []
         
         for sub in list_sub:
             start = 0
@@ -39,10 +39,11 @@ class Feature():
                 if index == -1:
                     break
                 
+                if(index not in all_occurences):
+                    words.append(sub)
                 all_occurences.add(index)
-                words.add(sub)
                 start = index + 1
-        return list((list(all_occurences), list(words)))
+        return list((list(all_occurences), words))
     
     def printMenu(self, menu: list) -> None:
         width = config.MENU_WIDTH
@@ -117,8 +118,6 @@ class Feature():
     # First in the set is TIMES_FOUND
     # Second is the boolean if there is a file
     
-    #! BUG: Still haven't print all the result
-    # Only show the first result in one day
     def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
@@ -166,8 +165,8 @@ class Feature():
             end_lines.append(end_line_index)
         
         res = set()
-        for start, end, occ, words in zip(start_lines, end_lines, occurences, words):
-            res.add(text[start:occ] + config.FOUND_STYLE + text[occ:occ + len(words)] + config.DEFAULT_STYLE + text[occ + len(words): end])
+        for start, end, occ, word in zip(start_lines, end_lines, occurences, words):
+            res.add(text[start:occ] + config.FOUND_STYLE + text[occ:occ + len(word)] + config.DEFAULT_STYLE + text[occ + len(word): end])
             
         return list(res)
         

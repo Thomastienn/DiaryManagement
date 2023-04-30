@@ -1,3 +1,6 @@
-a = ["aafs", "asvb", "amkv"]
+from datetime import datetime
+import config
 
-print(list(map(lambda b: "\"" + b + "\"", a)))
+td = config.shortcut_date["td"]
+
+print(td.year)

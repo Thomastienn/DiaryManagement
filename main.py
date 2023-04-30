@@ -1,4 +1,4 @@
-import os, threading, config, rsa, requests, secret_storage
+import os, threading, config, rsa, requests, secret_storage, time
 from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
@@ -6,6 +6,7 @@ from Feature import Feature
 from colorama import init
 from pyasn1.error import SubstrateUnderrunError
 from googletrans import Translator
+from datetime import timedelta, datetime
 
 def send_notification(mess: str, desc: str, noti_type="info"):
     requests.post('https://api.mynotifier.app', {
@@ -45,13 +46,17 @@ def find_main(main_finder: Feature):
     user_normalization = False
     
     def print_find_properties():
+        def print_option(name: str, user_bool: bool):
+            print(config.FUNCTION_STYLE + name, config.select_bool_style(user_bool))
+        
         main_finder.printHeader(config.MENU_WIDTH)
-        print("1. EXACT: ", config.select_bool_style(user_exact))
-        print("2. CASE SENSITIVE: ", config.select_bool_style(user_case_sensitive))
-        print("3. ACCENT MARK: ", config.select_bool_style(user_accent_mark))
-        print("4. NORMALIZATION: ", config.select_bool_style(user_normalization))
+        print_option("1. EXACT: ", user_exact)
+        print_option("2. CASE SENSITIVE: ", user_case_sensitive)
+        print_option("3. ACCENT MARK: ", user_accent_mark)
+        print_option("4. NORMALIZATION: ", user_normalization)
+        
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
-        print(config.FUNCTION_STYLE + "0. START")
+        print(config.HIGHTLIGHT_STYLE + "0. START")
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
     
     while True:
@@ -131,7 +136,33 @@ def toggle_translation(feature: Feature):
 def toggle_normalize_text(feature: Feature):
     config.use_normalize_text = not config.use_normalize_text
     print("Toggle successfully!\n")
+
+def show_stats(feature: Feature):
+    os.system("cls")
+    print(config.HIGHTLIGHT_STYLE + "LOADING...\n")
     
+    days_past = (config.today - config.shortcut_date["s"]).days
+    
+    no_files = 0
+    current_day = config.shortcut_date["s"]
+    while current_day != config.shortcut_date["td"]:
+        cur_today_day_month, cur_today_year = current_day.strftime("%d-%m"), str(current_day.year)
+        cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
+        current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
+                                    file_name=cur_today_day_month)
+        
+        if(not current_date_file.is_existed()):
+            no_files += 1
+            
+        current_day = current_day + timedelta(days=1)
+    
+    os.system("cls")
+    print(config.HIGHTLIGHT_STYLE + "There have been " + config.HEADER_STYLE + str(days_past) + config.HIGHTLIGHT_STYLE + " days")
+    print(config.HIGHTLIGHT_STYLE + "You skipped " + config.HEADER_STYLE + str(no_files) + config.HIGHTLIGHT_STYLE + " days")
+    
+    
+    print("\n")
+
 options = {
     # Features that all inherits
     # the class has
@@ -146,6 +177,7 @@ options = {
     "6": remove_key,
     "7": toggle_normalize_text,
     "8": toggle_translation,
+    "9": show_stats,
 }  
     
 def run():

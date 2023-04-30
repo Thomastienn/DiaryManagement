@@ -11,22 +11,27 @@ class TextFile:
             raise TypeError("Insufficient parameters") 
         file_name = file_name
         self.dir = upper_dir + "\\" + file_name + ".txt"
+        
+    def is_existed(self) -> bool:
+        try:
+            with open(self.dir, "rb"):
+                return True
+        except (FileNotFoundError, FileExistsError):
+            return False
 
     def decrypt_file(self) -> str:
         # Get private key
         with open(config.PRIVATE_KEYS_DIR, 'rb') as key_file:
             private_key = rsa.PrivateKey.load_pkcs1(key_file.read())
 
-        # If there is the file
-        try:
-            with open(self.dir, 'rb') as f:
-                ciphertext = f.read()
-                list_of_lines = ciphertext.decode("utf-8").split("\n")
-
-                return self.__decrypt_lines_text(lines=list_of_lines, private_key=private_key)
-            
-        except (FileNotFoundError, FileExistsError):
+        if(not self.is_existed()):
             return None
+        
+        with open(self.dir, 'rb') as f:
+            ciphertext = f.read()
+            list_of_lines = ciphertext.decode("utf-8").split("\n")
+
+            return self.__decrypt_lines_text(lines=list_of_lines, private_key=private_key)
         
     def write_file(self, text: str) -> None:
         upper_path = os.path.dirname(Path(self.dir))

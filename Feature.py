@@ -116,6 +116,9 @@ class Feature():
     # Return
     # First in the set is TIMES_FOUND
     # Second is the boolean if there is a file
+    
+    #! BUG: Still haven't print all the result
+    # Only show the first result in one day
     def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):

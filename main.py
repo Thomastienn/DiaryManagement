@@ -1,4 +1,4 @@
-import os, threading, config, rsa, requests, secret_storage, time
+import os, threading, config, rsa, requests, secret_storage, time, pickle
 from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
@@ -136,6 +136,73 @@ def toggle_translation(feature: Feature):
 def toggle_normalize_text(feature: Feature):
     config.use_normalize_text = not config.use_normalize_text
     print("Toggle successfully!\n")
+    
+def update_light_weight_db():
+    db_file = open(config.STATS_DB, "rb")
+    db = pickle.load(db_file)
+    
+    no_files = 0
+    total_bytes = 0
+    
+    current_day = config.shortcut_date["s"]
+    end_date = config.shortcut_date["td"] + timedelta(days=1)
+    while current_day != end_date:
+        cur_today_day_month, cur_today_year = current_day.strftime("%d-%m"), str(current_day.year)
+        cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
+        current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
+                                    file_name=cur_today_day_month)
+        current_day = current_day + timedelta(days=1)
+        
+        if(not current_date_file.is_existed()):
+            no_files += 1
+            continue
+        
+        total_bytes += current_date_file.stored_size()
+    
+    db["total_days"] = (end_date - config.shortcut_date["s"]).days
+    db["total_days_skipped"] = no_files
+    db["total_storage"] = total_bytes
+    
+    db_file = open(config.STATS_DB, "wb")
+    pickle.dump(db, db_file)
+    db_file.close()
+    
+def update_heavy_db(feature: Feature):
+    os.system("cls")
+    print(config.HIGHTLIGHT_STYLE + "CALCULATING...\n")
+    
+    db = {}
+    
+    total_lines = 0
+    total_chars = 0
+    
+    for (root,dirs,files) in os.walk(top=config.DIARY_DIR):
+        for f in files:
+            if f.endswith(".txt"):
+                # construct the full file path
+                file_path = os.path.join(root, f)
+                text_file = TextFile(full_dir=file_path)
+                text = text_file.decrypt_file()
+                
+                total_lines += len(text.split("\n"))
+                total_chars += len(text)
+    
+    print(config.HIGHTLIGHT_STYLE + "UPDATING...\n")
+    
+    db["total_lines"] = total_lines
+    db["total_characters"] = total_chars
+    
+    print(config.HIGHTLIGHT_STYLE + "WRITING...\n")
+    db_file = open(config.STATS_DB, "wb")
+    pickle.dump(db, db_file)
+    db_file.close()
+        
+    print(config.TRUE_STYLE + "UPDATED SUCCESSFULLY")
+
+def inspect_db(feature: Feature):
+    db_file = open(config.STATS_DB, "rb")
+    db = pickle.load(db_file)
+    print("\n" + db + "\n")
 
 def show_stats(feature: Feature):
     if(not config.has_valid_key):
@@ -145,33 +212,20 @@ def show_stats(feature: Feature):
     os.system("cls")
     print(config.HIGHTLIGHT_STYLE + "LOADING...\n")
     
-    days_past = (config.today - config.shortcut_date["s"]).days
+    db_file = open(config.STATS_DB, "rb")
+    db = pickle.load(db_file)
     
-    no_files = 0
-    total_lines = 0
-    total_chars = 0
+    total_days = db["total_days"]
+    no_files = db["total_days_skipped"]
+    total_lines = db["total_lines"]
+    total_chars = db["total_characters"]
+    total_bytes = db["total_storage"]
     
-    current_day = config.shortcut_date["s"]
-    while current_day != config.shortcut_date["td"]:
-        cur_today_day_month, cur_today_year = current_day.strftime("%d-%m"), str(current_day.year)
-        cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
-        current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
-                                    file_name=cur_today_day_month)
-        print(config.NONE_STYLE + f"{cur_today_day_month}-{cur_today_year}")
-        current_day = current_day + timedelta(days=1)
-        
-        if(not current_date_file.is_existed()):
-            no_files += 1
-            continue
-        
-        text = current_date_file.decrypt_file()
-        total_lines += len(text.split("\n"))
-        total_chars += len(text)
-        
     os.system("cls")
-    print(config.HIGHTLIGHT_STYLE + "There have been " + config.HEADER_STYLE + str(days_past) + config.HIGHTLIGHT_STYLE + " days")
+    print(config.HIGHTLIGHT_STYLE + "There have been " + config.HEADER_STYLE + str(total_days) + config.HIGHTLIGHT_STYLE + " days")
     print(config.HIGHTLIGHT_STYLE + "You skipped " + config.HEADER_STYLE + str(no_files) + config.HIGHTLIGHT_STYLE + " days")
     print(config.HIGHTLIGHT_STYLE + "You wrote " + config.HEADER_STYLE + str(total_lines) + config.HIGHTLIGHT_STYLE + " lines with " + config.HEADER_STYLE + str(total_chars) + config.HIGHTLIGHT_STYLE + " characters")
+    print(config.HIGHTLIGHT_STYLE + "The storage is " + config.HEADER_STYLE + str(total_bytes) + config.HIGHTLIGHT_STYLE + " bytes or " + config.HEADER_STYLE + str(round(total_bytes/1024*100)/100) + config.HIGHTLIGHT_STYLE + " KB or " + config.HEADER_STYLE + str(round(total_bytes/1024/1024 *100)/100) + config.HIGHTLIGHT_STYLE + " MB")
     
     print("\n")
 
@@ -190,6 +244,8 @@ options = {
     "7": toggle_normalize_text,
     "8": toggle_translation,
     "9": show_stats,
+    "10": update_heavy_db,
+    "11": inspect_db,
 }  
     
 def run():
@@ -207,6 +263,7 @@ def run():
     check_key_valid()
 
     while True:
+        update_light_weight_db()
         os.system('cls')
         current_feature.printMenu(current_feature.get_menu())
         

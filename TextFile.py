@@ -12,6 +12,9 @@ class TextFile:
         file_name = file_name
         self.dir = upper_dir + "\\" + file_name + ".txt"
         
+    def stored_size(self):
+        return os.path.getsize(self.dir)
+    
     def is_existed(self) -> bool:
         try:
             with open(self.dir, "rb"):

@@ -138,28 +138,40 @@ def toggle_normalize_text(feature: Feature):
     print("Toggle successfully!\n")
 
 def show_stats(feature: Feature):
+    if(not config.has_valid_key):
+        print("No key no stats")
+        return
+    
     os.system("cls")
     print(config.HIGHTLIGHT_STYLE + "LOADING...\n")
     
     days_past = (config.today - config.shortcut_date["s"]).days
     
     no_files = 0
+    total_lines = 0
+    total_chars = 0
+    
     current_day = config.shortcut_date["s"]
     while current_day != config.shortcut_date["td"]:
         cur_today_day_month, cur_today_year = current_day.strftime("%d-%m"), str(current_day.year)
         cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
         current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
                                     file_name=cur_today_day_month)
+        print(config.NONE_STYLE + f"{cur_today_day_month}-{cur_today_year}")
+        current_day = current_day + timedelta(days=1)
         
         if(not current_date_file.is_existed()):
             no_files += 1
-            
-        current_day = current_day + timedelta(days=1)
-    
+            continue
+        
+        text = current_date_file.decrypt_file()
+        total_lines += len(text.split("\n"))
+        total_chars += len(text)
+        
     os.system("cls")
     print(config.HIGHTLIGHT_STYLE + "There have been " + config.HEADER_STYLE + str(days_past) + config.HIGHTLIGHT_STYLE + " days")
     print(config.HIGHTLIGHT_STYLE + "You skipped " + config.HEADER_STYLE + str(no_files) + config.HIGHTLIGHT_STYLE + " days")
-    
+    print(config.HIGHTLIGHT_STYLE + "You wrote " + config.HEADER_STYLE + str(total_lines) + config.HIGHTLIGHT_STYLE + " lines with " + config.HEADER_STYLE + str(total_chars) + config.HIGHTLIGHT_STYLE + " characters")
     
     print("\n")
 

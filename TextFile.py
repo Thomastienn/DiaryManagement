@@ -1,4 +1,4 @@
-import rsa, ast, os
+import rsa, ast, os, dbop
 import config
 from pathlib import Path
 
@@ -45,7 +45,14 @@ class TextFile:
         with open(config.PUBLIC_KEYS_DIR, "rb") as key_file:
             public_key = rsa.PublicKey.load_pkcs1(key_file.read())
 
-        for piece in self.__break_long_string_into_list(text):
+        broken_pieces = self.__break_long_string_into_list(text)
+        
+        # 2: The extra length of \n and end line
+        dbop.update_relative_database(config.STATS_DB, [\
+            ("total_lines", len(broken_pieces)),\
+            ("total_characters", len(text) + 2)])
+        
+        for piece in broken_pieces:
             # piece: string -> into message: byte
             message = piece.encode("utf-8")
             encrypted_text = rsa.encrypt(message, public_key)
@@ -56,6 +63,8 @@ class TextFile:
             # Write the string representation of the byte
             with open(self.dir, mode, encoding="utf-8") as file:
                 file.write(str(encrypted_text) + "\n")
+                dbop.update_relative_database(config.STATS_DB, [\
+                ("total_storage", self.__utf8len(str(encrypted_text) + "\n") + 1)])
         print("Success")
 
     def __utf8len(self, s):

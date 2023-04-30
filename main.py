@@ -1,4 +1,4 @@
-import os, threading, config, rsa, requests, secret_storage, time, pickle
+import os, threading, config, rsa, requests, secret_storage, time, pickle, dbop
 from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
@@ -138,14 +138,72 @@ def toggle_normalize_text(feature: Feature):
     print("Toggle successfully!\n")
     
 def update_light_weight_db():
-    db_file = open(config.STATS_DB, "rb")
-    db = pickle.load(db_file)
+    db = dbop.get_database(config.STATS_DB)
     
-    no_files = 0
+    start_date = current_day =  db["last_updated"]
+    end_date = config.shortcut_date["td"]
+    
+    if(start_date == end_date):
+        return
+    
+    relative_no_files = 0
+    relative_total_bytes = 0
+    
+    # Not include today
+    while current_day != end_date:
+        cur_today_day_month, cur_today_year = current_day.strftime("%d-%m"), str(current_day.year)
+        cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
+        current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
+                                    file_name=cur_today_day_month)
+        current_day = current_day + timedelta(days=1)
+        
+        if(not current_date_file.is_existed()):
+            relative_no_files += 1
+            continue
+        
+        relative_total_bytes += current_date_file.stored_size()
+    
+    dbop.update_relative_database(config.STATS_DB, [\
+        ("total_days", end_date-start_date), \
+        ("total_storage", relative_total_bytes), \
+        ("total_days_skipped", relative_no_files)])
+
+def update_heavy_db(feature: Feature):
+    os.system("cls")
+    print(config.HIGHTLIGHT_STYLE + "CALCULATING...\n")
+    
     total_bytes = 0
+    total_lines = 0
+    total_chars = 0
     
+    for (root,dirs,files) in os.walk(top=config.DIARY_DIR):
+        for f in files:
+            if f.endswith(".txt"):
+                print(config.NONE_STYLE + f)
+                # construct the full file path
+                file_path = os.path.join(root, f)
+                text_file = TextFile(full_dir=file_path)
+                
+                text = text_file.decrypt_file()
+                total_bytes += text_file.stored_size()
+                total_lines += len(text.split("\n"))
+                total_chars += len(text)
+    
+    print(config.HIGHTLIGHT_STYLE + "UPDATING...\n")
+    
+    update_missing_date()
+    dbop.update_database(config.STATS_DB, [\
+        ("total_days",(config.shortcut_date["td"] + timedelta(days=1) - config.shortcut_date["s"]).days), \
+        ("total_storage", total_bytes), \
+        ("total_lines", total_lines), \
+        ("total_characters", total_chars)])
+        
+    print(config.TRUE_STYLE + "UPDATED SUCCESSFULLY")
+
+def update_missing_date():
     current_day = config.shortcut_date["s"]
-    end_date = config.shortcut_date["td"] + timedelta(days=1)
+    end_date = config.shortcut_date["td"]
+    no_files = 0
     while current_day != end_date:
         cur_today_day_month, cur_today_year = current_day.strftime("%d-%m"), str(current_day.year)
         cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
@@ -157,52 +215,7 @@ def update_light_weight_db():
             no_files += 1
             continue
         
-        total_bytes += current_date_file.stored_size()
-    
-    db["total_days"] = (end_date - config.shortcut_date["s"]).days
-    db["total_days_skipped"] = no_files
-    db["total_storage"] = total_bytes
-    
-    db_file = open(config.STATS_DB, "wb")
-    pickle.dump(db, db_file)
-    db_file.close()
-    
-def update_heavy_db(feature: Feature):
-    os.system("cls")
-    print(config.HIGHTLIGHT_STYLE + "CALCULATING...\n")
-    
-    db = {}
-    
-    total_lines = 0
-    total_chars = 0
-    
-    for (root,dirs,files) in os.walk(top=config.DIARY_DIR):
-        for f in files:
-            if f.endswith(".txt"):
-                # construct the full file path
-                file_path = os.path.join(root, f)
-                text_file = TextFile(full_dir=file_path)
-                text = text_file.decrypt_file()
-                
-                total_lines += len(text.split("\n"))
-                total_chars += len(text)
-    
-    print(config.HIGHTLIGHT_STYLE + "UPDATING...\n")
-    
-    db["total_lines"] = total_lines
-    db["total_characters"] = total_chars
-    
-    print(config.HIGHTLIGHT_STYLE + "WRITING...\n")
-    db_file = open(config.STATS_DB, "wb")
-    pickle.dump(db, db_file)
-    db_file.close()
-        
-    print(config.TRUE_STYLE + "UPDATED SUCCESSFULLY")
-
-def inspect_db(feature: Feature):
-    db_file = open(config.STATS_DB, "rb")
-    db = pickle.load(db_file)
-    print("\n" + db + "\n")
+    dbop.update_database(config.STATS_DB, [("total_days_skipped", no_files)])
 
 def show_stats(feature: Feature):
     if(not config.has_valid_key):
@@ -245,7 +258,6 @@ options = {
     "8": toggle_translation,
     "9": show_stats,
     "10": update_heavy_db,
-    "11": inspect_db,
 }  
     
 def run():

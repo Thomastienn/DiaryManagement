@@ -11,7 +11,7 @@ class Diary(Feature):
         return ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key",
                 config.select_bool_style(config.use_normalize_text, False) + "Normalization",
                 config.select_bool_style(None, False) + "Translation",
-                "Statistics", "Update database", "Inspect database"]
+                "Statistics", "Update database"]
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%H:%M:%S]") + ": "

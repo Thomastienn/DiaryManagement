@@ -1,8 +1,3 @@
-import requests, os
+a = ["aafs", "asvb", "amkv"]
 
-requests.post('https://api.mynotifier.app', {
-    "apiKey": os.environ.get("MYNOTIFIER_API_KEY"),
-    "message": "Test",
-    "description": "Test",
-    "type": "info", # info, error, warning or success
-})
+print(list(map(lambda b: "\"" + b + "\"", a)))

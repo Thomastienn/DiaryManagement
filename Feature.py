@@ -25,7 +25,7 @@ class Feature():
         pass
     
     @abstractmethod        
-    def find(self, find_str, exact, case_sensitive, accent_mark) -> None:
+    def find(self, find_str, exact, case_sensitive, accent_mark, normalization) -> None:
         pass
     
     def find_all(self, origin: str, list_sub: list) -> list:
@@ -78,9 +78,12 @@ class Feature():
         print("\n") 
      
     # In development
-    def normalize_text(self, text: str) -> str:
-        # new_text = [storage.normalize_language_with_accent_mark.get(word.lower(), word) for word in text.split(" ")]
-        # res_text = ' '.join([config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(word).lower(), config.DEFAULT_STYLE + word) for word in new_text])
+    def normalize_text(self, text: str, annotate: bool = True) -> str:
+        if not annotate:
+            new_text = [storage.normalize_language_with_accent_mark.get(word.lower(), word) for word in text.split(" ")]
+            res_text = ' '.join([storage.normalize_language_no_accent_mark.get(unidecode(word).lower(), word) for word in new_text])
+            
+            return res_text
         
         final = []
         for word in text.split(" "):
@@ -110,10 +113,16 @@ class Feature():
             
         return search_str
        
-    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title) -> None:
+    # Return
+    # First in the set is TIMES_FOUND
+    # Second is the boolean if there is a file
+    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
-            return
+            return (0, False)
+        if(normalization):
+            all_text_day = self.normalize_text(all_text_day, annotate=False)
+        
         immutable_all_text_day = all_text_day
         if(not accent_mark):
             all_text_day = unidecode(all_text_day)
@@ -122,12 +131,17 @@ class Feature():
             all_text_day = all_text_day.lower()
             
         found, words = self.find_all(all_text_day, search_str)
+        
+        times_found = 0
         if(len(found) != 0):
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found, words)
             self.printTitle(title, style=config.DAYTIME_STYLE)
             self.process_print_decryped("\n".join(all_lines_found))
+            times_found += len(found)
         else:
             print(config.NONE_STYLE + title + " NONE")
+            
+        return (times_found, True)
         
     def index_occ_to_start_line(self, text: str, occurences: list, words: list) -> list:
         start_lines = []

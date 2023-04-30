@@ -74,7 +74,7 @@ class Milestone(Feature):
         self.printTitle(self.year)
         super().printMenu(self.get_sub_menu())
         
-    def find(self, find_str, exact, case_sensitive, accent_mark) -> None:
+    def find(self, find_str, exact, case_sensitive, accent_mark, normalization) -> None:
         os.system("cls")
         self.printHeader(config.MENU_WIDTH)
         print("YYYY YYYY")
@@ -135,7 +135,8 @@ class Milestone(Feature):
                     search_str=search_str,
                     accent_mark=accent_mark,
                     case_sensitive=case_sensitive,
-                    title=f"{current_year}-{milestone_category}"
+                    title=f"{current_year}-{milestone_category}",
+                    normalization=normalization
                 )
                 
             current_year += 1

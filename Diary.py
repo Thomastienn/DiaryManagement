@@ -55,12 +55,13 @@ class Diary(Feature):
     def __to_format_datetime(self, string_datetime: str) -> str:
         return string_datetime[:-5] + "-" + string_datetime[-2:]
     
-    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool) -> None:
+    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool, normalization: bool) -> None:
         os.system("cls")
         self.printHeader(config.MENU_WIDTH)
         print("DD-MM-YYYY DD-MM-YYYY")
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         user_range = input("Range: ")
+        print(config.HIGHTLIGHT_STYLE + "\nYou want to find " + config.HEADER_STYLE + "\"" + find_str + "\"")
         
         start_end = user_range.split(" ")
         
@@ -98,23 +99,40 @@ class Diary(Feature):
             exact=exact
         )
         
+        print(config.HIGHTLIGHT_STYLE + "SEARCHING " + (config.HIGHTLIGHT_STYLE + " + ").join(list(map(lambda b: config.HEADER_STYLE + "\"" + b + "\"",search_str))) + "\n")
+        
         # Retrieve text from diary
         # Process case sensitive
         # Find the str
         current_date = start_date
         end_date = end_date+timedelta(days=1)
+        
+        all_times_found = 0
+        invalid_files = 0
+        no_written_files = 0
         while current_date != end_date:
             cur_today_day_month, cur_today_year = self.__datetime_to_month_year(current_date)
             cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
             current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
                                          file_name=cur_today_day_month)
             
-            self.process_find_in_text_file(
+            times_found, is_written = self.process_find_in_text_file(
                 find_file=current_date_file,
                 search_str=search_str,
                 accent_mark=accent_mark,
                 case_sensitive=case_sensitive,
-                title=f"{cur_today_day_month}-{cur_today_year}"
+                title=f"{cur_today_day_month}-{cur_today_year}",
+                normalization=normalization
             )
+            if(times_found):
+                all_times_found += times_found
+            else:
+                invalid_files += 1
+                
+            if(not is_written):
+                no_written_files +=  1
             
             current_date = current_date + timedelta(days=1)
+        
+        day_range = (end_date - start_date).days
+        print("\n" + config.HIGHTLIGHT_STYLE + "Found " + config.HEADER_STYLE + str(all_times_found) + config.HIGHTLIGHT_STYLE + " results in " + config.HEADER_STYLE + str(day_range - invalid_files) + config.HIGHTLIGHT_STYLE + " files out of " + config.HEADER_STYLE + str(day_range - no_written_files) + config.HIGHTLIGHT_STYLE + " written files in range of " + config.HEADER_STYLE + str(day_range) + config.HIGHTLIGHT_STYLE + " days\n")

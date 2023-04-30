@@ -1,4 +1,4 @@
-import os, threading, config, rsa
+import os, threading, config, rsa, requests, secret_storage
 from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
@@ -6,6 +6,14 @@ from Feature import Feature
 from colorama import init
 from pyasn1.error import SubstrateUnderrunError
 from googletrans import Translator
+
+def send_notification(mess: str, desc: str, noti_type="info"):
+    requests.post('https://api.mynotifier.app', {
+        "apiKey": secret_storage.MYNOTIFIER_API_KEY,
+        "message": mess,
+        "description": desc,
+        "type": noti_type, # info, error, warning or success
+    })
 
 def write_main(main_writer: Feature):
     write_dir = main_writer.handle_selection_write()
@@ -20,26 +28,28 @@ def write_main(main_writer: Feature):
 def read_main(main_reader: Feature):
     if(not config.has_valid_key):
         print("Don't be sneaky")
+        send_notification(mess="Watchout!", desc="Someone is trying to read your diary", noti_type="warning")
         return
     main_reader.navigate()
 
 def find_main(main_finder: Feature):
     if(not config.has_valid_key):
         print("Don't be sneaky")
+        send_notification(mess="Watchout!", desc="Someone is trying to read your diary", noti_type="warning")
         return
     
     # Default value
     user_exact = True #22-12-2022 17-03-2023
     user_case_sensitive = False
     user_accent_mark = False
-    user_normalization = True
+    user_normalization = False
     
     def print_find_properties():
         main_finder.printHeader(config.MENU_WIDTH)
         print("1. EXACT: ", config.select_bool_style(user_exact))
         print("2. CASE SENSITIVE: ", config.select_bool_style(user_case_sensitive))
         print("3. ACCENT MARK: ", config.select_bool_style(user_accent_mark))
-        print("4. NORMALIZATION (Not avail): ", config.select_bool_style(user_normalization))
+        print("4. NORMALIZATION: ", config.select_bool_style(user_normalization))
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         print(config.FUNCTION_STYLE + "0. START")
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
@@ -54,7 +64,8 @@ def find_main(main_finder: Feature):
             if(need_find_str):
                 main_finder.find(need_find_str, exact=user_exact, 
                                 case_sensitive=user_case_sensitive,
-                                accent_mark=user_accent_mark)
+                                accent_mark=user_accent_mark,
+                                normalization=user_normalization)
             break
         if(user_chose == "1"):
             user_exact = not user_exact

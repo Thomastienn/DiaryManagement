@@ -1,5 +1,5 @@
 test.py
 __pycache__/
 secret_storage.py
-stats_diary.pkl
+database/
 debug.py

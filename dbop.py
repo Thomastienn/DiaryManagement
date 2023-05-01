@@ -7,7 +7,6 @@ def update_database(db_dir: str, cols_vals: list) -> None:
         col, val = col_val
         db[col] = val        
     
-    db["last_updated"] = config.shortcut_date["td"]
     write_database(db, db_dir)
 
 def update_relative_database(db_dir: str, cols_relvals: list) -> None:
@@ -15,8 +14,7 @@ def update_relative_database(db_dir: str, cols_relvals: list) -> None:
     for col_relval in cols_relvals:
         col, rel_val = col_relval
         db[col] += rel_val        
-    
-    db["last_updated"] = config.shortcut_date["td"]
+
     write_database(db, db_dir)
     
 def get_database(db_dir: str) -> dict:

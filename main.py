@@ -140,7 +140,7 @@ def toggle_normalize_text(feature: Feature):
 def update_light_weight_db():
     db = dbop.get_database(config.STATS_DB)
     
-    start_date = current_day =  db["last_updated"]
+    start_date = current_day = db["last_light_updated"]
     end_date = config.shortcut_date["td"]
     
     if(start_date == end_date):
@@ -165,12 +165,16 @@ def update_light_weight_db():
     
     dbop.update_relative_database(config.STATS_DB, [\
         ("total_days", end_date-start_date), \
-        ("total_storage", relative_total_bytes), \
-        ("total_days_skipped", relative_no_files)])
+        ("total_days_skipped", relative_no_files), \
+        ("last_light_updated", config.shortcut_date["td"])])
 
-def update_heavy_db(feature: Feature):
-    os.system("cls")
-    print(config.HIGHTLIGHT_STYLE + "CALCULATING...\n")
+# To sync with the current statistic if something goes wrong
+# Only use once per 90 days
+# It will use as a sync feature once the diary is 4 years old
+def update_heavy_db():
+    db = dbop.get_database(config.STATS_DB)
+    if((config.shortcut_date["td"] - db["last_heavy_updated"]).days < 90):
+        return
     
     total_bytes = 0
     total_lines = 0
@@ -179,7 +183,6 @@ def update_heavy_db(feature: Feature):
     for (root,dirs,files) in os.walk(top=config.DIARY_DIR):
         for f in files:
             if f.endswith(".txt"):
-                print(config.NONE_STYLE + f)
                 # construct the full file path
                 file_path = os.path.join(root, f)
                 text_file = TextFile(full_dir=file_path)
@@ -189,16 +192,13 @@ def update_heavy_db(feature: Feature):
                 total_lines += len(text.split("\n"))
                 total_chars += len(text)
     
-    print(config.HIGHTLIGHT_STYLE + "UPDATING...\n")
-    
     update_missing_date()
     dbop.update_database(config.STATS_DB, [\
         ("total_days",(config.shortcut_date["td"] + timedelta(days=1) - config.shortcut_date["s"]).days), \
         ("total_storage", total_bytes), \
         ("total_lines", total_lines), \
-        ("total_characters", total_chars)])
-        
-    print(config.TRUE_STYLE + "UPDATED SUCCESSFULLY")
+        ("total_characters", total_chars), \
+        ("last_heavy_updated", config.shortcut_date["td"])])
 
 def update_missing_date():
     current_day = config.shortcut_date["s"]
@@ -257,9 +257,13 @@ options = {
     "7": toggle_normalize_text,
     "8": toggle_translation,
     "9": show_stats,
-    "10": update_heavy_db,
 }  
-    
+
+
+def update_db():
+    update_light_weight_db()
+    update_heavy_db()
+
 def run():
     global current_feature, main_diary, main_milestone
     
@@ -273,9 +277,11 @@ def run():
     current_feature = main_diary
     
     check_key_valid()
-
+    
+    t_db = threading.Thread(target=update_db)
+    t_db.start()
+    
     while True:
-        update_light_weight_db()
         os.system('cls')
         current_feature.printMenu(current_feature.get_menu())
         

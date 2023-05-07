@@ -1,5 +1,7 @@
 shortcuts = ["LLV"]
 
+people = {"ktay","tay", "rot", "vu", "ti na", "thi'm", "khang", "qe nhe", "kim qag", "kim hon", "bich thot", "thuy trang", "btran", "chi heo", "trihao", "an", "mr"}
+
 normalize_language_with_accent_mark = {
     "bùn": "buồn",
     "đãk": "đã",
@@ -106,6 +108,7 @@ normalize_language_no_accent_mark = {
     "ktay": "khoai tây",
     "qa": "qua",
     "qen": "quen",
+    "qan": "quan",
     "qcao": "quảng cáo",
     "quánh": "đánh",
     "sn": "sinh nhật",

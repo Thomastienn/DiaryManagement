@@ -1,4 +1,4 @@
-import os, config, calendar
+import os, config, calendar, time
 from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
@@ -35,9 +35,8 @@ class Diary(Feature):
             decrypted_message = cur_today_file.decrypt_file()
             if(decrypted_message):
                 text = decrypted_message
-                if(config.use_normalize_text):
-                    text = (self.normalize_text(decrypted_message))
-                self.process_print_decryped(text)
+                text = self.iterate_txt(decrypted_message, normalize=config.use_normalize_text)
+                print(text)
 
             user_choose = input("NAV: ")
             if(user_choose == "a"):
@@ -111,6 +110,7 @@ class Diary(Feature):
         all_times_found = 0
         invalid_files = 0
         no_written_files = 0
+        start_time = time.time()
         while current_date != end_date:
             cur_today_day_month, cur_today_year = self.__datetime_to_month_year(current_date)
             cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
@@ -135,5 +135,11 @@ class Diary(Feature):
             
             current_date = current_date + timedelta(days=1)
         
+        end_time = time.time()
+        time_taken = (end_time-start_time)*10**3
+        time_taken_str = f"{time_taken:.03f}" + config.HIGHTLIGHT_STYLE + " ms"
+        if(time_taken > 1000):
+            time_taken_str = f"{time_taken/1000:.03f}" + config.HIGHTLIGHT_STYLE + " s"
+        
         day_range = (end_date - start_date).days
-        print("\n" + config.HIGHTLIGHT_STYLE + "Found " + config.HEADER_STYLE + str(all_times_found) + config.HIGHTLIGHT_STYLE + " results in " + config.HEADER_STYLE + str(day_range - invalid_files) + config.HIGHTLIGHT_STYLE + " files out of " + config.HEADER_STYLE + str(day_range - no_written_files) + config.HIGHTLIGHT_STYLE + " written files in range of " + config.HEADER_STYLE + str(day_range) + config.HIGHTLIGHT_STYLE + " days\n")
+        print("\n" + config.HIGHTLIGHT_STYLE + "Found " + config.HEADER_STYLE + str(all_times_found) + config.HIGHTLIGHT_STYLE + " results in " + config.HEADER_STYLE + str(day_range - invalid_files) + config.HIGHTLIGHT_STYLE + " files out of " + config.HEADER_STYLE + str(day_range - no_written_files) + config.HIGHTLIGHT_STYLE + " written files in range of " + config.HEADER_STYLE + str(day_range) + config.HIGHTLIGHT_STYLE + " days in " + config.HEADER_STYLE + time_taken_str + "\n")

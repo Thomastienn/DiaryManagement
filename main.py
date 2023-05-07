@@ -147,7 +147,6 @@ def update_light_weight_db():
         return
     
     relative_no_files = 0
-    relative_total_bytes = 0
     
     # Not include today
     while current_day != end_date:
@@ -160,13 +159,11 @@ def update_light_weight_db():
         if(not current_date_file.is_existed()):
             relative_no_files += 1
             continue
-        
-        relative_total_bytes += current_date_file.stored_size()
     
     dbop.update_relative_database(config.STATS_DB, [\
-        ("total_days", end_date-start_date), \
-        ("total_days_skipped", relative_no_files), \
-        ("last_light_updated", config.shortcut_date["td"])])
+        ("total_days", (end_date-start_date).days), \
+        ("total_days_skipped", relative_no_files)])
+    dbop.update_database(config.STATS_DB, [("last_light_updated", config.shortcut_date["td"])])
 
 # To sync with the current statistic if something goes wrong
 # Only use once per 90 days
@@ -263,6 +260,9 @@ options = {
 def update_db():
     update_light_weight_db()
     update_heavy_db()
+
+
+# ! Lam nhat ki biet on
 
 def run():
     global current_feature, main_diary, main_milestone

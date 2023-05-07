@@ -61,45 +61,53 @@ class Feature():
         
     def printHeader(self, width):
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
-     
-    def process_print_decryped(self, text):
-        lines = text.split("\n")
-        for line in lines:
-            if(line):
-                if(line[0] == "["):
-                    try:
-                        timestamp, content = line.split("]:", maxsplit=1)
-                    except ValueError:
-                        timestamp, content = line.split("]", maxsplit=1)
-                        
-                    print("\n" + config.TIMESTAMP_STYLE + timestamp + "]:", end="")
-                    print(content, end="")
-                else:
-                    print(line, end="")
-        print("\n") 
-     
-    # In development
-    def normalize_text(self, text: str, annotate: bool = True) -> str:
+    
+    def iterate_txt(self, text: str, normalize: bool = False, highlight: bool = True) -> str: 
+        final = []
+        for word in text.split(" "):
+            res = word
+            processed = False
+            
+            if("[" in word):
+                for idx, character in enumerate(word):
+                    if(character == "]"):
+                        # 2 is ] and :
+                        res = config.TIMESTAMP_STYLE + word[:idx + 2] + config.DEFAULT_STYLE
+                        processed = True
+                        break
+                res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
+                
+            if("]" in word and (not processed)):
+                res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
+            
+            if(normalize):
+                res = self.__normalize_text(word)
+            elif(highlight):
+                if(self.__normalize_text(word, annotate=False) in storage.people or
+                    unidecode(word.lower()) in storage.people):
+                    res = config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
+                  
+            final.append(res)
+        
+        return " ".join(final)
+    
+    def __normalize_text(self, word: str, annotate: bool = True) -> str:
         if not annotate:
-            new_text = [storage.normalize_language_with_accent_mark.get(word.lower(), word) for word in text.split(" ")]
-            res_text = ' '.join([storage.normalize_language_no_accent_mark.get(unidecode(word).lower(), word) for word in new_text])
+            new_text = storage.normalize_language_with_accent_mark.get(word.lower(), word)
+            res_text = storage.normalize_language_no_accent_mark.get(unidecode(new_text).lower(), new_text)
             
             return res_text
         
-        final = []
-        for word in text.split(" "):
-            res = storage.normalize_language_with_accent_mark.get(word.lower())
-            if(res is None):
-                res = storage.normalize_language_no_accent_mark.get(unidecode(word).lower())
+        res = storage.normalize_language_with_accent_mark.get(word.lower())
+        if(res is None):
+            res = storage.normalize_language_no_accent_mark.get(unidecode(word).lower())
 
-                res = (config.TRUE_STYLE + res + config.FALSE_STYLE + "(" + word + ")") if res is not None else (config.DEFAULT_STYLE + word)
-            else:
-                res = config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(res).lower() , res) + config.FALSE_STYLE + "(" + word + ")"
-                
-            final.append(res)
-
+            res = (config.TRUE_STYLE + res + config.FALSE_STYLE + "(" + word + ")") if res is not None else (config.DEFAULT_STYLE + word)
+        else:
+            res = config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(res).lower() , res) + config.FALSE_STYLE + "(" + word + ")"
         
-        return " ".join(final)
+        return res
+                
     
     def preprocess_find_str(self, find_str, case_sensitive, accent_mark, exact) -> list:
         if(not case_sensitive):
@@ -108,7 +116,14 @@ class Feature():
             find_str = unidecode(find_str)
         search_str = []
         if(not exact):
-            search_str = find_str.split(" ")
+            cur_str = ""
+            for c in find_str:
+                if(c == " " or c == ")"):
+                    search_str.append(cur_str)
+                    cur_str = ""
+                elif(c != "("):
+                    cur_str += c
+                    
         else:
             search_str.append(find_str)
             
@@ -123,7 +138,7 @@ class Feature():
         if(not all_text_day):
             return (0, False)
         if(normalization):
-            all_text_day = self.normalize_text(all_text_day, annotate=False)
+            all_text_day = " ".join([self.__normalize_text(word, annotate=False) for word in all_text_day.split(" ")])
         
         immutable_all_text_day = all_text_day
         if(not accent_mark):
@@ -138,7 +153,7 @@ class Feature():
         if(len(found) != 0):
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found, words)
             self.printTitle(title, style=config.DAYTIME_STYLE)
-            self.process_print_decryped("\n".join(all_lines_found))
+            print(self.iterate_txt("".join(all_lines_found)))
             times_found += len(found)
         else:
             print(config.NONE_STYLE + title + " NONE")

@@ -1,6 +1,8 @@
 shortcuts = ["LLV"]
 
-people = {"ktay","tay", "rot", "vu", "ti na", "thi'm", "khang", "qe nhe", "kim qag", "kim hon", "bich thot", "thuy trang", "btran", "chi heo", "trihao", "an", "mr"}
+people = {"ktay","tay", "rot", "vu", "zu", "ti na", "thi'm", "khang", "qe nhe", "kim qag", "kim hon", "bich thot", "thuy trang", "btran", "chi heo", "trihao", "an", "mr", "chi mai"}
+
+places = {"walmart", "dollarama", "winner", "shoppers", "shopper", "btrust", "karaoke", "square", "bus", "freshco", "urban", "planet"}
 
 normalize_language_with_accent_mark = {
     "bùn": "buồn",
@@ -50,6 +52,7 @@ normalize_language_with_accent_mark = {
     "trứ": "chứ",
     "đắc": "đất",
     "tón": "toán",
+    "gất": "rất",
 }
 
 normalize_language_no_accent_mark = {
@@ -71,6 +74,8 @@ normalize_language_no_accent_mark = {
     "dc": "được",
     "dr": "đúng rồi",
     "droi": "đúng rồi",
+    "dg": 'đang',
+    "dl": "deadline",
     "ei": "ê",
     "ga": "ra",
     "goi": "roi",
@@ -92,9 +97,11 @@ normalize_language_no_accent_mark = {
     "ms": "mới",
     "mng": "mọi người",
     "mec": "mệt",
+    "mun": "muon",
     "min": "mình",
     "ng": "người",
     "nc": "nước",
+    "nchien": "nói chuyện",
     "ngc": "ngược",
     "nka": "nha",
     "nhma": "nhưng mà",

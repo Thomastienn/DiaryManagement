@@ -29,6 +29,8 @@ DEFAULT_STYLE = Style.RESET_ALL
 HIGHTLIGHT_STYLE = Fore.WHITE + Style.BRIGHT
 
 PEOPLE_STYLE = Fore.BLUE + Style.BRIGHT
+PLACES_STYLE = Fore.GREEN + Style.BRIGHT
+UNCERTAIN_STYLE = Fore.LIGHTBLUE_EX
 
 update_running_thread = True
 has_valid_key = True

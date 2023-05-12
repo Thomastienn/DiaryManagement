@@ -28,9 +28,8 @@ class Feature():
     def find(self, find_str, exact, case_sensitive, accent_mark, normalization) -> None:
         pass
     
-    def find_all(self, origin: str, list_sub: list) -> list:
-        all_occurences = set()
-        words = []
+    def find_all(self, origin: str, list_sub: list) -> dict:
+        all_occurences = {}
         
         for sub in list_sub:
             start = 0
@@ -39,11 +38,10 @@ class Feature():
                 if index == -1:
                     break
                 
-                if(index not in all_occurences):
-                    words.append(sub)
-                all_occurences.add(index)
+                all_occurences[index] = sub
                 start = index + 1
-        return list((list(all_occurences), words))
+                
+        return all_occurences
     
     def printMenu(self, menu: list) -> None:
         width = config.MENU_WIDTH
@@ -64,9 +62,13 @@ class Feature():
     
     def iterate_txt(self, text: str, normalize: bool = False, highlight: bool = True) -> str: 
         final = []
+        start_line = False
         for word in text.split(" "):
+            if(not word):
+                continue
             res = word
             processed = False
+            is_time_stamp = True
             
             if("[" in word):
                 for idx, character in enumerate(word):
@@ -77,8 +79,12 @@ class Feature():
                         break
                 res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
                 
-            if("]" in word and (not processed)):
-                res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
+            if("]" in word):
+                start_line = True
+                if(not processed):
+                    res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
+            else:
+                is_time_stamp = False
             
             if(normalize):
                 res = self.__normalize_text(word)
@@ -86,7 +92,15 @@ class Feature():
                 if(self.__normalize_text(word, annotate=False) in storage.people or
                     unidecode(word.lower()) in storage.people):
                     res = config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
-                  
+                elif(self.__normalize_text(word, annotate=False) in storage.places or
+                    unidecode(word.lower()) in storage.places):
+                    res = config.PLACES_STYLE + word + config.DEFAULT_STYLE
+                elif(word[0].isupper() and not start_line):
+                    res = config.UNCERTAIN_STYLE + word + config.DEFAULT_STYLE
+            
+            if(not is_time_stamp):
+                start_line = False  
+                
             final.append(res)
         
         return " ".join(final)
@@ -147,23 +161,22 @@ class Feature():
         if(not case_sensitive):
             all_text_day = all_text_day.lower()
             
-        found, words = self.find_all(all_text_day, search_str)
+        found_dict = self.find_all(all_text_day, search_str)
         
         times_found = 0
-        if(len(found) != 0):
-            all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found, words)
+        if(len(found_dict) != 0):
+            all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found_dict)
             self.printTitle(title, style=config.DAYTIME_STYLE)
             print(self.iterate_txt("".join(all_lines_found)))
-            times_found += len(found)
+            times_found += len(found_dict)
         else:
             print(config.NONE_STYLE + title + " NONE")
             
         return (times_found, True)
         
-    def index_occ_to_start_line(self, text: str, occurences: list, words: list) -> list:
-        start_lines = []
-        end_lines = []
-        for occ in occurences:
+    def index_occ_to_start_line(self, text: str, occ_dict: dict) -> list:
+        pos_dic = {}
+        for occ in occ_dict.keys():
             start_line_index = occ
             end_line_index = occ
             
@@ -176,13 +189,28 @@ class Feature():
             except IndexError:
                 end_line_index -= 1    
                 
-            start_lines.append(start_line_index)
-            end_lines.append(end_line_index)
-        
-        res = set()
-        for start, end, occ, word in zip(start_lines, end_lines, occurences, words):
-            res.add(text[start:occ] + config.FOUND_STYLE + text[occ:occ + len(word)] + config.DEFAULT_STYLE + text[occ + len(word): end])
+            if((start_line_index, end_line_index) in pos_dic):
+                pos_dic[(start_line_index, end_line_index)] += [(occ, occ_dict[occ])]
+            else:
+                pos_dic[(start_line_index, end_line_index)] = [(occ, occ_dict[occ])]
             
-        return list(res)
+        
+        res = []
+        
+        for key in pos_dic.keys():
+            start, end = key
+            l_occ_word = pos_dic[key]
+            final = ""
+            prev_occ = start
+            for occ_word in l_occ_word:
+                occ, word = occ_word
+                final += text[prev_occ:occ] + config.FOUND_STYLE + text[occ:occ + len(word)] + config.DEFAULT_STYLE
+                
+                prev_occ = occ + len(word)
+            
+            final += text[prev_occ: end]
+            res.append(final)
+            
+        return sorted(res)
         
     

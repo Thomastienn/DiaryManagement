@@ -130,14 +130,32 @@ class Feature():
             find_str = unidecode(find_str)
         search_str = []
         if(not exact):
-            cur_str = ""
-            for c in find_str:
-                if(c == " " or c == ")"):
-                    search_str.append(cur_str)
-                    cur_str = ""
-                elif(c != "("):
-                    cur_str += c
-                    
+            search_str = find_str.split(" ")
+
+            res = []
+            i = 0
+            while i < len(search_str):
+                t = search_str[i]
+                
+                if("(" in t):
+                    full_str = t[1:] 
+                    for j in range(i+1, len(search_str)):
+                        t_1 = search_str[j]
+                        if(")" in t_1):
+                            full_str += " " + t_1[:-1]
+                            i = j
+                            break
+                        else:
+                            full_str += " " + t_1
+                    if(")" in t):
+                        full_str = full_str[:-1]
+                    res.append(full_str)
+                else:
+                    res.append(t)
+                            
+                i+=1
+            
+            search_str = res
         else:
             search_str.append(find_str)
             

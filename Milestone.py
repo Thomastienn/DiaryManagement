@@ -71,7 +71,7 @@ class Milestone(Feature):
             input("Press anything to continue...")
     
     def printSubMenu(self) -> None:
-        self.printTitle(self.year)
+        self.printTitle(self.year, style=config.TIMESTAMP_STYLE)
         super().printMenu(self.get_sub_menu())
         
     def find(self, find_str, exact, case_sensitive, accent_mark, normalization) -> None:

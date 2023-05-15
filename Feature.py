@@ -229,6 +229,6 @@ class Feature():
             final += text[prev_occ: end]
             res.append(final)
             
-        return sorted(res)
+        return res
         
     

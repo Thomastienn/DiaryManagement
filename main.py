@@ -231,11 +231,18 @@ def show_stats(feature: Feature):
     total_chars = db["total_characters"]
     total_bytes = db["total_storage"]
     
+    last_light_up = db["last_light_updated"]
+    last_heavy_up = db["last_heavy_updated"]
+    
     os.system("cls")
     print(config.HIGHTLIGHT_STYLE + "There have been " + config.HEADER_STYLE + str(total_days) + config.HIGHTLIGHT_STYLE + " days")
     print(config.HIGHTLIGHT_STYLE + "You skipped " + config.HEADER_STYLE + str(no_files) + config.HIGHTLIGHT_STYLE + " days")
     print(config.HIGHTLIGHT_STYLE + "You wrote " + config.HEADER_STYLE + str(total_lines) + config.HIGHTLIGHT_STYLE + " lines with " + config.HEADER_STYLE + str(total_chars) + config.HIGHTLIGHT_STYLE + " characters")
     print(config.HIGHTLIGHT_STYLE + "The storage is " + config.HEADER_STYLE + str(total_bytes) + config.HIGHTLIGHT_STYLE + " bytes or " + config.HEADER_STYLE + str(round(total_bytes/1024*100)/100) + config.HIGHTLIGHT_STYLE + " KB or " + config.HEADER_STYLE + str(round(total_bytes/1024/1024 *100)/100) + config.HIGHTLIGHT_STYLE + " MB")
+    
+    print("\n")
+    print(config.HIGHTLIGHT_STYLE + "Last light update: " + config.HEADER_STYLE + (last_light_up.strftime("%d/%m/") + str(last_light_up.year)))
+    print(config.HIGHTLIGHT_STYLE + "Last heavy update: " + config.HEADER_STYLE + (last_heavy_up.strftime("%d/%m/") + str(last_heavy_up.year)))
     
     print("\n")
 
@@ -263,6 +270,9 @@ def update_db():
 
 
 # ! Lam nhat ki biet on
+# NOTE
+# * Do multi-threading when there is too many files
+# * Do heavy update database as a feature when there is too many files
 
 def run():
     global current_feature, main_diary, main_milestone

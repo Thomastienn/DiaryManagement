@@ -36,7 +36,7 @@ class TextFile:
 
             return self.__decrypt_lines_text(lines=list_of_lines, private_key=private_key)
         
-    def write_file(self, text: str) -> None:
+    def write_file(self, text: str, update_db = True) -> None:
         upper_path = os.path.dirname(Path(self.dir))
         if(not os.path.exists(upper_path)):
             os.mkdir(upper_path)
@@ -48,7 +48,8 @@ class TextFile:
         broken_pieces = self.__break_long_string_into_list(text)
         
         # 2: The extra length of \n and end line
-        dbop.update_relative_database(config.STATS_DB, [\
+        if(update_db):
+            dbop.update_relative_database(config.STATS_DB, [\
             ("total_lines", len(broken_pieces)),\
             ("total_characters", len(text) + 2)])
         
@@ -63,8 +64,9 @@ class TextFile:
             # Write the string representation of the byte
             with open(self.dir, mode, encoding="utf-8") as file:
                 file.write(str(encrypted_text) + "\n")
-                dbop.update_relative_database(config.STATS_DB, [\
-                ("total_storage", self.__utf8len(str(encrypted_text) + "\n") + 1)])
+                if(update_db):
+                    dbop.update_relative_database(config.STATS_DB, [\
+                    ("total_storage", self.__utf8len(str(encrypted_text) + "\n") + 1)])
         print("Success")
 
     def __utf8len(self, s):
@@ -90,7 +92,7 @@ class TextFile:
         # Split text into list of words
         words_list = text.split(" ")
 
-        MAX_BYTES = 240
+        MAX_BYTES = 230
         
         final_res = []
         curNumBytes = 0

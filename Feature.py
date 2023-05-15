@@ -25,10 +25,10 @@ class Feature():
         pass
     
     @abstractmethod        
-    def find(self, find_str, exact, case_sensitive, accent_mark, normalization) -> None:
+    def find(self, find_str, exact, case_sensitive, accent_mark, normalization, whole_word) -> None:
         pass
     
-    def find_all(self, origin: str, list_sub: list) -> dict:
+    def find_all(self, origin: str, list_sub: list, whole_word: bool) -> dict:
         all_occurences = {}
         
         for sub in list_sub:
@@ -37,8 +37,13 @@ class Feature():
                 index = origin.find(sub, start)
                 if index == -1:
                     break
+                if(whole_word):
+                    if((index-1 < 0 or origin[index-1] in {" ", "\n"}) and \
+                       (index+1 >= len(origin) or origin[index+1] in {" ", "\n"})):
+                            all_occurences[index] = sub
+                else:
+                    all_occurences[index] = sub
                 
-                all_occurences[index] = sub
                 start = index + 1
                 
         return all_occurences
@@ -70,7 +75,8 @@ class Feature():
             processed = False
             is_time_stamp = True
             
-            if("[" in word):
+            if("[" in word and config.DEFAULT_STYLE not in word
+               and config.FOUND_STYLE not in word):
                 for idx, character in enumerate(word):
                     if(character == "]"):
                         # 2 is ] and :
@@ -79,7 +85,7 @@ class Feature():
                         break
                 res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
                 
-            if("]" in word):
+            if("]" in word and config.DEFAULT_STYLE not in word):
                 start_line = True
                 if(not processed):
                     res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
@@ -138,19 +144,21 @@ class Feature():
                 t = search_str[i]
                 
                 if("(" in t):
-                    full_str = t[1:] 
-                    for j in range(i+1, len(search_str)):
-                        t_1 = search_str[j]
-                        if(")" in t_1):
-                            full_str += " " + t_1[:-1]
-                            i = j
-                            break
-                        else:
-                            full_str += " " + t_1
+                    full_str = t[1:]
                     if(")" in t):
                         full_str = full_str[:-1]
+                    else:
+                        for j in range(i+1, len(search_str)):
+                            t_1 = search_str[j]
+                            if(")" in t_1):
+                                full_str += " " + t_1[:-1]
+                                i = j
+                                break
+                            else:
+                                full_str += " " + t_1
                     res.append(full_str)
                 else:
+                    
                     res.append(t)
                             
                 i+=1
@@ -165,7 +173,7 @@ class Feature():
     # First in the set is TIMES_FOUND
     # Second is the boolean if there is a file
     
-    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization) -> set:
+    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
             return (0, False)
@@ -179,7 +187,7 @@ class Feature():
         if(not case_sensitive):
             all_text_day = all_text_day.lower()
             
-        found_dict = self.find_all(all_text_day, search_str)
+        found_dict = self.find_all(all_text_day, search_str, whole_word)
         
         times_found = 0
         if(len(found_dict) != 0):

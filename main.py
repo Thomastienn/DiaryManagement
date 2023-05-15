@@ -44,6 +44,7 @@ def find_main(main_finder: Feature):
     user_case_sensitive = False
     user_accent_mark = False
     user_normalization = False
+    user_whole_word = False
     
     def print_find_properties():
         def print_option(name: str, user_bool: bool):
@@ -54,6 +55,7 @@ def find_main(main_finder: Feature):
         print_option("2. CASE SENSITIVE: ", user_case_sensitive)
         print_option("3. ACCENT MARK: ", user_accent_mark)
         print_option("4. NORMALIZATION: ", user_normalization)
+        print_option("5. WHOLE WORD: ", user_whole_word)
         
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         print(config.HIGHTLIGHT_STYLE + "0. START")
@@ -70,7 +72,8 @@ def find_main(main_finder: Feature):
                 main_finder.find(need_find_str, exact=user_exact, 
                                 case_sensitive=user_case_sensitive,
                                 accent_mark=user_accent_mark,
-                                normalization=user_normalization)
+                                normalization=user_normalization,
+                                whole_word=user_whole_word)
             break
         if(user_chose == "1"):
             user_exact = not user_exact
@@ -80,6 +83,8 @@ def find_main(main_finder: Feature):
             user_accent_mark = not user_accent_mark
         elif(user_chose == "4"):
             user_normalization = not user_normalization
+        elif(user_chose == "5"):
+            user_whole_word = not user_whole_word
         else:
             break
 

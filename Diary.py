@@ -55,7 +55,7 @@ class Diary(Feature):
     def __to_format_datetime(self, string_datetime: str) -> str:
         return string_datetime[:-5] + "-" + string_datetime[-2:]
     
-    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool, normalization: bool) -> None:
+    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool, normalization: bool, whole_word: bool) -> None:
         os.system("cls")
         self.printHeader(config.MENU_WIDTH)
         print("DD-MM-YYYY DD-MM-YYYY")
@@ -123,7 +123,8 @@ class Diary(Feature):
                 accent_mark=accent_mark,
                 case_sensitive=case_sensitive,
                 title=f"{cur_today_day_month}-{cur_today_year}",
-                normalization=normalization
+                normalization=normalization,
+                whole_word=whole_word
             )
             if(times_found):
                 all_times_found += times_found

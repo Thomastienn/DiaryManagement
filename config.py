@@ -14,6 +14,8 @@ STATS_DB = PROGRAM_DIR + "\\database\\stats_diary.pkl"
 MENU_WIDTH = 20
 TITLE_WIDTH = 20
 
+RESET_STYLE  = Fore.RESET
+
 HEADER_STYLE = Fore.CYAN + Style.BRIGHT
 INVALID_HEADER_STYLE = Fore.RED + Style.BRIGHT
 

@@ -37,6 +37,8 @@ UNCERTAIN_STYLE = Fore.LIGHTBLUE_EX
 update_running_thread = True
 has_valid_key = True
 use_normalize_text = False
+use_annotate_normalize = False
+use_translation = False
 
 
 def init_update():

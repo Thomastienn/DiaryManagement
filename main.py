@@ -33,11 +33,46 @@ def read_main(main_reader: Feature):
         return
     main_reader.navigate()
 
+def print_option(index: int, name: str, user_bool: bool):
+    print(config.HEADER_STYLE + str(index) + " | " + config.FUNCTION_STYLE + name, config.select_bool_style(user_bool))
+    
+def setting_main(diary: Feature):
+    if(not config.has_valid_key):
+        print("Don't be sneaky")
+        return
+    
+    def print_properties():
+        diary.printHeader(config.MENU_WIDTH)
+        print_option(1, "NORMALIZATION: ", config.use_normalize_text)
+        print_option(2, "ANNOTATION: ", config.use_annotate_normalize)
+        print_option(3, "TRANSLATION: ", config.use_translation)
+        
+        print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
+    while True:
+        os.system("cls")
+        print_properties()
+        user_chose = input("Set: ")
+        
+        if(user_chose == "0"):
+            return
+        if(user_chose == "1"):
+            config.use_normalize_text = not config.use_normalize_text
+        elif(user_chose == "2"):
+            config.use_annotate_normalize = not config.use_annotate_normalize
+        elif(user_chose == "3"):
+            config.use_translation = not config.use_translation
+        else:
+            break
+    
+
 def find_main(main_finder: Feature):
     if(not config.has_valid_key):
         print("Don't be sneaky")
         send_notification(mess="Watchout!", desc="Someone is trying to read your diary", noti_type="warning")
         return
+    
+    use_annotate = config.use_annotate_normalize
+    config.use_annotate_normalize = False
     
     # Default value
     user_exact = True #22-12-2022 17-03-2023
@@ -47,15 +82,12 @@ def find_main(main_finder: Feature):
     user_whole_word = False
     
     def print_find_properties():
-        def print_option(name: str, user_bool: bool):
-            print(config.FUNCTION_STYLE + name, config.select_bool_style(user_bool))
-        
         main_finder.printHeader(config.MENU_WIDTH)
-        print_option("1. EXACT: ", user_exact)
-        print_option("2. CASE SENSITIVE: ", user_case_sensitive)
-        print_option("3. ACCENT MARK: ", user_accent_mark)
-        print_option("4. NORMALIZATION: ", user_normalization)
-        print_option("5. WHOLE WORD: ", user_whole_word)
+        print_option(1, "EXACT: ", user_exact)
+        print_option(2, "CASE SENSITIVE: ", user_case_sensitive)
+        print_option(3, "ACCENT MARK: ", user_accent_mark)
+        print_option(4, "NORMALIZATION: ", user_normalization)
+        print_option(5, "WHOLE WORD: ", user_whole_word)
         
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         print(config.HIGHTLIGHT_STYLE + "0. START")
@@ -87,6 +119,8 @@ def find_main(main_finder: Feature):
             user_whole_word = not user_whole_word
         else:
             break
+        
+    config.use_annotate_normalize = use_annotate
 
 
 def milestone_main(feature: Feature):
@@ -134,13 +168,6 @@ def check_key_valid():
             rsa.PrivateKey.load_pkcs1(key_file.read())
     except (ValueError, SubstrateUnderrunError):
         config.has_valid_key = False
-
-def toggle_translation(feature: Feature):
-    translator = Translator()
-
-def toggle_normalize_text(feature: Feature):
-    config.use_normalize_text = not config.use_normalize_text
-    print("Toggle successfully!\n")
     
 def update_light_weight_db():
     db = dbop.get_database(config.STATS_DB)
@@ -263,9 +290,8 @@ options = {
     "4": milestone_main,
     "5": insert_key,
     "6": remove_key,
-    "7": toggle_normalize_text,
-    "8": toggle_translation,
-    "9": show_stats,
+    "7": setting_main,
+    "8": show_stats,
 }  
 
 

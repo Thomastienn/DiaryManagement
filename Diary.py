@@ -8,9 +8,7 @@ class Diary(Feature):
         super().__init__(dir)
         
     def get_menu(self):
-        return ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key",
-                config.select_bool_style(config.use_normalize_text, False) + "Normalization",
-                config.select_bool_style(None, False) + "Translation",
+        return ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting",
                 "Statistics"]
     
     def get_time_stamp(self) -> str:
@@ -35,7 +33,7 @@ class Diary(Feature):
             decrypted_message = cur_today_file.decrypt_file()
             if(decrypted_message):
                 text = decrypted_message
-                text = self.iterate_txt(decrypted_message, normalize=config.use_normalize_text)
+                text = self.iterate_txt(decrypted_message)
                 print(text)
 
             user_choose = input("NAV: ")

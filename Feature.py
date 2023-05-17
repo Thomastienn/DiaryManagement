@@ -39,7 +39,7 @@ class Feature():
                     break
                 if(whole_word):
                     if((index-1 < 0 or origin[index-1] in {" ", "\n"}) and \
-                       (index+1 >= len(origin) or origin[index+1] in {" ", "\n"})):
+                       (index+1 >= len(origin) or origin[index + len(sub)] in {" ", "\n"})):
                             all_occurences[index] = sub
                 else:
                     all_occurences[index] = sub
@@ -65,7 +65,19 @@ class Feature():
     def printHeader(self, width):
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
     
-    def iterate_txt(self, text: str, normalize: bool = False, highlight: bool = True) -> str: 
+    def __highlight_text(self, word: str):
+        if(self.__normalize_text(word) in storage.people or
+            unidecode(word.lower()) in storage.people):
+            return config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
+        elif(self.__normalize_text(word) in storage.places or
+            unidecode(word.lower()) in storage.places):
+            return config.PLACES_STYLE + word + config.DEFAULT_STYLE
+        elif(word[0].isupper()):
+            return config.UNCERTAIN_STYLE + word + config.DEFAULT_STYLE
+        
+        return word
+    
+    def iterate_txt(self, text: str, highlight: bool = True) -> str: 
         final = []
         start_line = False
         for word in text.split(" "):
@@ -74,6 +86,17 @@ class Feature():
             res = word
             processed = False
             is_time_stamp = True
+            
+            #! TEST
+            # if("\n" in word):
+            #     words = word.split("\n")
+            #     if(words[0]):
+            #         final.append(self.__highlight_text(words[0]))
+            #     final.append("\n" + config.TIMESTAMP_STYLE + words[1] + config.DEFAULT_STYLE)
+            #     start_line = True
+            #     is_time_stamp = True
+                
+            #     continue
             
             if("[" in word and config.DEFAULT_STYLE not in word
                and config.FOUND_STYLE not in word):
@@ -92,13 +115,14 @@ class Feature():
             else:
                 is_time_stamp = False
             
-            if(normalize):
+            if(config.use_normalize_text):
                 res = self.__normalize_text(word)
-            elif(highlight):
-                if(self.__normalize_text(word, annotate=False) in storage.people or
+            
+            if(highlight):
+                if(self.__normalize_text(word) in storage.people or
                     unidecode(word.lower()) in storage.people):
                     res = config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
-                elif(self.__normalize_text(word, annotate=False) in storage.places or
+                elif(self.__normalize_text(word) in storage.places or
                     unidecode(word.lower()) in storage.places):
                     res = config.PLACES_STYLE + word + config.DEFAULT_STYLE
                 elif(word[0].isupper() and not start_line):
@@ -111,8 +135,8 @@ class Feature():
         
         return " ".join(final)
     
-    def __normalize_text(self, word: str, annotate: bool = True) -> str:
-        if not annotate:
+    def __normalize_text(self, word: str) -> str:
+        if not config.use_annotate_normalize:
             new_text = storage.normalize_language_with_accent_mark.get(word.lower(), word)
             res_text = storage.normalize_language_no_accent_mark.get(unidecode(new_text).lower(), new_text)
             
@@ -178,7 +202,7 @@ class Feature():
         if(not all_text_day):
             return (0, False)
         if(normalization):
-            all_text_day = " ".join([self.__normalize_text(word, annotate=False) for word in all_text_day.split(" ")])
+            all_text_day = " ".join([self.__normalize_text(word) for word in all_text_day.split(" ")])
         
         immutable_all_text_day = all_text_day
         if(not accent_mark):

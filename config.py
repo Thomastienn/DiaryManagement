@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
-import time, os
-from colorama import Fore, Back, Style
+from datetime import datetime
+import time
+from colorama import Fore, Style
 
 #! SETUP 
 PROGRAM_DIR = "D:\\DiaryProgram"
@@ -9,7 +9,11 @@ KEYS_DIR = "D:\\keys"
 
 PRIVATE_KEYS_DIR = f"{KEYS_DIR}\\private_key.pem"
 PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
-STATS_DB = PROGRAM_DIR + "\\database\\stats_diary.pkl"
+
+DATABASE_DIR = PROGRAM_DIR + "\\database"
+STATS_DB = DATABASE_DIR + "\\stats_diary.pkl"
+PEOPLE_DB = DATABASE_DIR + "\\people.pkl"
+PLACES_DB = DATABASE_DIR + "\\places.pkl"
 
 MENU_WIDTH = 20
 TITLE_WIDTH = 20
@@ -32,13 +36,14 @@ HIGHTLIGHT_STYLE = Fore.WHITE + Style.BRIGHT
 
 PEOPLE_STYLE = Fore.BLUE + Style.BRIGHT
 PLACES_STYLE = Fore.GREEN + Style.BRIGHT
-UNCERTAIN_STYLE = Fore.LIGHTBLUE_EX
+UNCERTAIN_STYLE = Fore.MAGENTA + Style.BRIGHT
 
 update_running_thread = True
 has_valid_key = True
 use_normalize_text = False
 use_annotate_normalize = False
 use_translation = False
+classifying_mode = False
 
 
 def init_update():

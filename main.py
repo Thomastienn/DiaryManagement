@@ -46,6 +46,7 @@ def setting_main(diary: Feature):
         print_option(1, "NORMALIZATION: ", config.use_normalize_text)
         print_option(2, "ANNOTATION: ", config.use_annotate_normalize)
         print_option(3, "TRANSLATION: ", config.use_translation)
+        print_option(4, "CLASSIFYING: ", config.classifying_mode)
         
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
     while True:
@@ -59,8 +60,12 @@ def setting_main(diary: Feature):
             config.use_normalize_text = not config.use_normalize_text
         elif(user_chose == "2"):
             config.use_annotate_normalize = not config.use_annotate_normalize
+            if(config.use_annotate_normalize):
+                config.use_normalize_text = config.use_annotate_normalize
         elif(user_chose == "3"):
             config.use_translation = not config.use_translation
+        elif(user_chose == "4"):
+            config.classifying_mode = not config.classifying_mode
         else:
             break
     
@@ -266,17 +271,22 @@ def show_stats(feature: Feature):
     last_light_up = db["last_light_updated"]
     last_heavy_up = db["last_heavy_updated"]
     
+    years = total_days//365
+    months = (total_days - years *365) // 30
+    days = total_days - years * 365 - months *30
+    
     os.system("cls")
-    print(config.HIGHTLIGHT_STYLE + "There have been " + config.HEADER_STYLE + str(total_days) + config.HIGHTLIGHT_STYLE + " days")
-    print(config.HIGHTLIGHT_STYLE + "You skipped " + config.HEADER_STYLE + str(no_files) + config.HIGHTLIGHT_STYLE + " days")
+    print(config.HIGHTLIGHT_STYLE + "There have been " + config.HEADER_STYLE + str(total_days) + config.HIGHTLIGHT_STYLE + " days (" + config.HEADER_STYLE + str(years) + config.HIGHTLIGHT_STYLE + " years " + config.HEADER_STYLE + str(months) + config.HIGHTLIGHT_STYLE + " months " + config.HEADER_STYLE + str(days) + config.HIGHTLIGHT_STYLE + " days)")
+    print(config.HIGHTLIGHT_STYLE + "You skipped " + config.HEADER_STYLE + str(no_files) + config.HIGHTLIGHT_STYLE + " days (" + config.HEADER_STYLE + str(round(no_files/total_days*10000)/100) + "%" + config.HIGHTLIGHT_STYLE + ")")
     print(config.HIGHTLIGHT_STYLE + "You wrote " + config.HEADER_STYLE + str(total_lines) + config.HIGHTLIGHT_STYLE + " lines with " + config.HEADER_STYLE + str(total_chars) + config.HIGHTLIGHT_STYLE + " characters")
     print(config.HIGHTLIGHT_STYLE + "The storage is " + config.HEADER_STYLE + str(total_bytes) + config.HIGHTLIGHT_STYLE + " bytes or " + config.HEADER_STYLE + str(round(total_bytes/1024*100)/100) + config.HIGHTLIGHT_STYLE + " KB or " + config.HEADER_STYLE + str(round(total_bytes/1024/1024 *100)/100) + config.HIGHTLIGHT_STYLE + " MB")
     
     print("\n")
     print(config.HIGHTLIGHT_STYLE + "Last light update: " + config.HEADER_STYLE + (last_light_up.strftime("%d/%m/") + str(last_light_up.year)))
-    print(config.HIGHTLIGHT_STYLE + "Last heavy update: " + config.HEADER_STYLE + (last_heavy_up.strftime("%d/%m/") + str(last_heavy_up.year)))
+    print(config.HIGHTLIGHT_STYLE + "Last heavy update: " + config.HEADER_STYLE + (last_heavy_up.strftime("%d/%m/") + str(last_heavy_up.year)) + config.HIGHTLIGHT_STYLE + " (" + config.HEADER_STYLE + str((config.shortcut_date["td"] - last_heavy_up).days) + config.HIGHTLIGHT_STYLE + " days)")
     
     print("\n")
+
 
 options = {
     # Features that all inherits
@@ -327,7 +337,7 @@ def run():
         current_feature.printMenu(current_feature.get_menu())
         
         user_input = input("Choose an option: ")
-        avail_options = [str(i) for i in range(len(current_feature.get_menu()) + 1)]
+        avail_options = {str(i) for i in range(len(current_feature.get_menu()) + 1)}
         
         if(user_input in avail_options):
             options.get(user_input, default)(current_feature)

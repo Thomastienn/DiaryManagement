@@ -1,7 +1,8 @@
-import os, config, calendar, time
+import os, config, calendar, time, storage, dbop
 from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
+from unidecode import unidecode
 
 class Diary(Feature):
     def __init__(self, dir: str) -> None:
@@ -26,27 +27,100 @@ class Diary(Feature):
             cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
 
             date_title = f"{calendar.day_name[cur_today.weekday()]} {cur_today_day_month}-{cur_today_year}"
-            self.printTitle(date_title, style=config.DAYTIME_STYLE)
-            
+
             cur_today_file = TextFile(upper_dir=cur_today_file_upper_dir, file_name=cur_today_day_month)
             
-            decrypted_message = cur_today_file.decrypt_file()
-            if(decrypted_message):
-                text = decrypted_message
-                text = self.iterate_txt(decrypted_message)
-                print(text)
+            if(config.classifying_mode):
+                unknown_words = self.__list_unknown_capital_words(cur_today_file)
+                
+                for i, unk_word in enumerate(unknown_words):
+                    self.printTitle(date_title, style=config.DAYTIME_STYLE)
+                    for j, word in enumerate(unknown_words):
+                        if(i == j):
+                            print(config.HEADER_STYLE + word, end=" ")
+                        else:
+                            print(config.UNCERTAIN_STYLE + word, end=" ")
+                    print("\n")
+                    print(config.HEADER_STYLE + unk_word)
+                    
+                    database_select = {
+                        "pe": config.PEOPLE_DB,
+                        "pl": config.PLACES_DB
+                    }
+                    
+                    print()
+                    print(config.DAYTIME_STYLE + "-"*20)
+                    print(config.PEOPLE_STYLE + "pe | people")
+                    print(config.PLACES_STYLE + "pl | places")
+                    print(config.DAYTIME_STYLE + "-"*20)
+                    print()
+                    
+                    user_classify = input(config.UNCERTAIN_STYLE +  "Classify: " + config.DEFAULT_STYLE)
+                    if(user_classify == "b"):
+                        break
+                    
+                    try:
+                        db_dir = database_select[user_classify]
+                    except KeyError:
+                        print(config.FALSE_STYLE + "\nNot adding!\n")
+                        os.system("cls")
+                        continue
+                        
+                    db = dbop.get_database(db_dir)
+                    db.add(unk_word)
+                    dbop.write_database(db, db_dir)
 
+                    print(config.TRUE_STYLE + "\nAdded successfully!\n")
+                    os.system("cls")
+            else:
+                self.printTitle(date_title, style=config.DAYTIME_STYLE)
+                decrypted_message = cur_today_file.decrypt_file()
+                if(decrypted_message):
+                    text = self.iterate_txt(decrypted_message)
+                    print(text)
+
+            if(config.classifying_mode):
+                self.printTitle(date_title, style=config.DAYTIME_STYLE)
+            
+            print()
             user_choose = input("NAV: ")
             if(user_choose == "a"):
                 cur_today = (cur_today - timedelta(days=1))
             elif(user_choose == "d"):
                 cur_today = (cur_today + timedelta(days=1))
+            elif(user_choose == "anno"):
+                config.use_annotate_normalize = not config.use_annotate_normalize
+            elif(user_choose == "nor"):
+                config.use_normalize_text = not config.use_normalize_text
+            elif(user_choose == "csf"):
+                config.classifying_mode = not config.classifying_mode
             else:
                 try:
                     cur_today = datetime.strptime(self.__to_format_datetime(user_choose), "%d-%m-%y")
                 except ValueError:
                     break
+    
+    def __list_unknown_capital_words(self, text_file: TextFile) -> list:
+        storage.update_latest()
+        
+        decrypted_message = text_file.decrypt_file()
+        res = []
+        
+        for word in decrypted_message.split(" "):
+            if(not word):
+                continue
+            is_time_stamp = False
+            
+            if("[" in word or "]" in word):
+                is_time_stamp = True
                 
+            if(word[0].isupper() and not is_time_stamp):
+                if(unidecode(word.lower()) not in storage.people and unidecode(word.lower()) not in storage.places and word not in storage.people and word not in storage.places):
+                    res.append(word)
+        
+        return res
+                
+    
     def __datetime_to_month_year(self, date_time: datetime):
         return (date_time.strftime("%d-%m"), date_time.strftime("20%y"))
     

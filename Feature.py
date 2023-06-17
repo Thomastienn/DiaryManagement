@@ -87,6 +87,9 @@ class Feature():
             processed = False
             is_time_stamp = True
             
+            if(config.use_normalize_text):
+                res = self.__normalize_text(word)
+            
             #! TEST
             # if("\n" in word):
             #     words = word.split("\n")
@@ -115,8 +118,9 @@ class Feature():
             else:
                 is_time_stamp = False
             
-            if(config.use_normalize_text):
-                res = self.__normalize_text(word)
+            findRes = word.find("\n")
+            if(not is_time_stamp and findRes != -1):
+                res = res[:findRes] + res[findRes+1:]
             
             if(highlight):
                 if(self.__normalize_text(word) in storage.people or
@@ -126,7 +130,11 @@ class Feature():
                     unidecode(word.lower()) in storage.places):
                     res = config.PLACES_STYLE + word + config.DEFAULT_STYLE
                 elif(word[0].isupper() and not start_line):
-                    res = config.UNCERTAIN_STYLE + word + config.DEFAULT_STYLE
+                    if(self.__normalize_text(word) in storage.capital_people or
+                    unidecode(word.lower()) in storage.capital_people):
+                        res = config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
+                    else:
+                        res = config.UNCERTAIN_STYLE + word + config.DEFAULT_STYLE
             
             if(not is_time_stamp):
                 start_line = False  

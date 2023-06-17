@@ -1,8 +1,18 @@
+import dbop, config
+
 shortcuts = ["LLV"]
 
-people = {"ktay","tay", "rot", "vu", "zu", "ti na", "thi'm", "khang", "qe nhe", "kim qag", "kim hon", "bich thot", "thuy trang", "btran", "chi heo", "trihao", "an", "mr", "chi mai"}
+def update_latest():
+    global people,places
+    
+    people = dbop.get_database(config.PEOPLE_DB)
+    places = dbop.get_database(config.PLACES_DB)    
 
-places = {"walmart", "dollarama", "winner", "shoppers", "shopper", "btrust", "karaoke", "square", "bus", "freshco", "urban", "planet"}
+people = dbop.get_database(config.PEOPLE_DB)
+places = dbop.get_database(config.PLACES_DB)
+
+capital_people={"tin", "tung", "hoa", "zu", "an", "trang"}
+
 
 normalize_language_with_accent_mark = {
     "bùn": "buồn",
@@ -90,6 +100,7 @@ normalize_language_no_accent_mark = {
     "koi": "coi",
     "kiu": "kêu",
     "ktra": "kiểm tra",
+    "khok": "khóc",
     "loi": "nói",
     "lun": "luôn",
     "liu": "liệu",

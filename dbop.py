@@ -17,14 +17,14 @@ def update_relative_database(db_dir: str, cols_relvals: list) -> None:
 
     write_database(db, db_dir)
     
-def get_database(db_dir: str) -> dict:
+def get_database(db_dir: str):
     db_file = open(db_dir, "rb")
     db = pickle.load(db_file)
     db_file.close
     
     return db
 
-def write_database(db: dict, db_dir: str) -> None:
+def write_database(db, db_dir: str) -> None:
     out_file = open(db_dir, "wb")
     pickle.dump(db, out_file)
     out_file.close()

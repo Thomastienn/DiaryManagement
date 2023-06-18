@@ -65,18 +65,6 @@ class Feature():
     def printHeader(self, width):
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
     
-    def __highlight_text(self, word: str):
-        if(self.__normalize_text(word) in storage.people or
-            unidecode(word.lower()) in storage.people):
-            return config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
-        elif(self.__normalize_text(word) in storage.places or
-            unidecode(word.lower()) in storage.places):
-            return config.PLACES_STYLE + word + config.DEFAULT_STYLE
-        elif(word[0].isupper()):
-            return config.UNCERTAIN_STYLE + word + config.DEFAULT_STYLE
-        
-        return word
-    
     def iterate_txt(self, text: str, highlight: bool = True) -> str: 
         final = []
         start_line = False

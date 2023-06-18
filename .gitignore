@@ -2,4 +2,3 @@ test.py
 __pycache__/
 secret_storage.py
 database/
-debug.py

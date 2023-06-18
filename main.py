@@ -36,13 +36,15 @@ def read_main(main_reader: Feature):
 def print_option(index: int, name: str, user_bool: bool):
     print(config.HEADER_STYLE + str(index) + " | " + config.FUNCTION_STYLE + name, config.select_bool_style(user_bool))
     
-def setting_main(diary: Feature):
+def setting_main():
+    global main_diary
+    
     if(not config.has_valid_key):
         print("Don't be sneaky")
         return
     
     def print_properties():
-        diary.printHeader(config.MENU_WIDTH)
+        main_diary.printHeader(config.MENU_WIDTH)
         print_option(1, "NORMALIZATION: ", config.use_normalize_text)
         print_option(2, "ANNOTATION: ", config.use_annotate_normalize)
         print_option(3, "TRANSLATION: ", config.use_translation)
@@ -128,7 +130,7 @@ def find_main(main_finder: Feature):
     config.use_annotate_normalize = use_annotate
 
 
-def milestone_main(feature: Feature):
+def milestone_main():
     global current_feature
     current_feature = main_milestone
 
@@ -145,7 +147,7 @@ def end(feature: Feature):
     else:
         current_feature = main_diary
 
-def insert_key(feature: Feature):
+def insert_key():
     print("Enter your key: ")
     
     line = input()
@@ -159,7 +161,7 @@ def insert_key(feature: Feature):
     
     check_key_valid()
     
-def remove_key(feature: Feature):
+def remove_key():
     with open(config.PRIVATE_KEYS_DIR, 'w') as key_file:
         key_file.write("DELETED " * 500)
     print("Delete successfully!\n")
@@ -251,7 +253,7 @@ def update_missing_date():
         
     dbop.update_database(config.STATS_DB, [("total_days_skipped", no_files)])
 
-def show_stats(feature: Feature):
+def show_stats():
     if(not config.has_valid_key):
         print("No key no stats")
         return
@@ -287,21 +289,37 @@ def show_stats(feature: Feature):
     
     print("\n")
 
+def option_4(feature: Feature):
+    if(isinstance(feature, Diary)):
+        milestone_main()
+
+def option_5(feature: Feature):
+    if(isinstance(feature, Diary)):
+        insert_key()
+        
+def option_6(feature: Feature):
+    if(isinstance(feature, Diary)):
+        remove_key()
+        
+def option_7(feature: Feature):
+    if(isinstance(feature, Diary)):
+        setting_main()
+        
+def option_8(feature: Feature):
+    if(isinstance(feature, Diary)):
+        show_stats()
 
 options = {
-    # Features that all inherits
-    # the class has
     "0": end,
     "1": write_main,
     "2": read_main,
     "3": find_main,
     
-    # Features only in diary
-    "4": milestone_main,
-    "5": insert_key,
-    "6": remove_key,
-    "7": setting_main,
-    "8": show_stats,
+    "4": option_4,
+    "5": option_5,
+    "6": option_6,
+    "7": option_7,
+    "8": option_8,
 }  
 
 

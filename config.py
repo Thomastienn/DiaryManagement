@@ -7,6 +7,9 @@ PROGRAM_DIR = "D:\\DiaryProgram"
 DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"
 
+MILESTONE_SUB_MENU = ["SONGS", "MOVIES", "BOOKS", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
+DIARY_MENU = ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting", "Statistics"]
+
 PRIVATE_KEYS_DIR = f"{KEYS_DIR}\\private_key.pem"
 PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
 

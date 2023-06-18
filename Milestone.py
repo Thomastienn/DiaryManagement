@@ -22,7 +22,7 @@ class Milestone(Feature):
         return ["Write", "Read", "Find"]
     
     def get_sub_menu(self) -> list:
-        return ["SONGS", "MOVIES", "BOOKS", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
+        return config.MILESTONE_SUB_MENU
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%d/%m/20%y %H:%M:%S]") + ": "

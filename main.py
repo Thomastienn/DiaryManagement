@@ -161,7 +161,7 @@ def insert_key(feature: Feature):
     
 def remove_key(feature: Feature):
     with open(config.PRIVATE_KEYS_DIR, 'w') as key_file:
-        key_file.truncate(0)
+        key_file.write("DELETED " * 500)
     print("Delete successfully!\n")
     
     config.has_valid_key = False

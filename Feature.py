@@ -90,17 +90,6 @@ class Feature():
             if(config.use_normalize_text):
                 res = self.__normalize_text(word)
             
-            #! TEST
-            # if("\n" in word):
-            #     words = word.split("\n")
-            #     if(words[0]):
-            #         final.append(self.__highlight_text(words[0]))
-            #     final.append("\n" + config.TIMESTAMP_STYLE + words[1] + config.DEFAULT_STYLE)
-            #     start_line = True
-            #     is_time_stamp = True
-                
-            #     continue
-            
             if("[" in word and config.DEFAULT_STYLE not in word
                and config.FOUND_STYLE not in word):
                 for idx, character in enumerate(word):
@@ -119,8 +108,14 @@ class Feature():
                 is_time_stamp = False
             
             findRes = word.find("\n")
-            if(not is_time_stamp and findRes != -1):
+            addition_word = ""
+            if(("[" not in word and "]" not in word) and findRes != -1):
                 res = res[:findRes] + res[findRes+1:]
+            elif(("[" in word or "]" in word) and findRes != -1):
+                splited = word.split("\n")
+                if(splited[0]):
+                    res = word[:findRes]
+                    addition_word = "\n" + config.TIMESTAMP_STYLE + word[findRes+1:] + config.DEFAULT_STYLE
             
             if(highlight):
                 if(self.__normalize_text(word) in storage.people or
@@ -134,12 +129,17 @@ class Feature():
                     unidecode(word.lower()) in storage.capital_people):
                         res = config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
                     else:
-                        res = config.UNCERTAIN_STYLE + word + config.DEFAULT_STYLE
+                        res = config.UNCERTAIN_STYLE + res + config.DEFAULT_STYLE
             
             if(not is_time_stamp):
-                start_line = False  
+                start_line = False 
+                
+            if("---" in word):
+                res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
                 
             final.append(res)
+            if(addition_word):
+                final.append(addition_word)
         
         return " ".join(final)
     
@@ -205,7 +205,7 @@ class Feature():
     # First in the set is TIMES_FOUND
     # Second is the boolean if there is a file
     
-    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word) -> set:
+    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none: True) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
             return (0, False)
@@ -228,7 +228,8 @@ class Feature():
             print(self.iterate_txt("".join(all_lines_found)))
             times_found += len(found_dict)
         else:
-            print(config.NONE_STYLE + title + " NONE")
+            if(display_none):
+                print(config.NONE_STYLE + title + " NONE")
             
         return (times_found, True)
         

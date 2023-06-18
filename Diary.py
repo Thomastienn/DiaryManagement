@@ -3,14 +3,14 @@ from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
 from unidecode import unidecode
+# from Milestone import Milestone
 
 class Diary(Feature):
     def __init__(self, dir: str) -> None:
         super().__init__(dir)
         
     def get_menu(self):
-        return ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting",
-                "Statistics"]
+        return config.DIARY_MENU
     
     def get_time_stamp(self) -> str:
         return datetime.now().strftime("[%H:%M:%S]") + ": "
@@ -32,46 +32,46 @@ class Diary(Feature):
             
             if(config.classifying_mode):
                 unknown_words = self.__list_unknown_capital_words(cur_today_file)
-                
-                for i, unk_word in enumerate(unknown_words):
-                    self.printTitle(date_title, style=config.DAYTIME_STYLE)
-                    for j, word in enumerate(unknown_words):
-                        if(i == j):
-                            print(config.HEADER_STYLE + word, end=" ")
-                        else:
-                            print(config.UNCERTAIN_STYLE + word, end=" ")
-                    print("\n")
-                    print(config.HEADER_STYLE + unk_word)
-                    
-                    database_select = {
-                        "pe": config.PEOPLE_DB,
-                        "pl": config.PLACES_DB
-                    }
-                    
-                    print()
-                    print(config.DAYTIME_STYLE + "-"*20)
-                    print(config.PEOPLE_STYLE + "pe | people")
-                    print(config.PLACES_STYLE + "pl | places")
-                    print(config.DAYTIME_STYLE + "-"*20)
-                    print()
-                    
-                    user_classify = input(config.UNCERTAIN_STYLE +  "Classify: " + config.DEFAULT_STYLE)
-                    if(user_classify == "b"):
-                        break
-                    
-                    try:
-                        db_dir = database_select[user_classify]
-                    except KeyError:
-                        print(config.FALSE_STYLE + "\nNot adding!\n")
-                        os.system("cls")
-                        continue
+                if(unknown_words):
+                    for i, unk_word in enumerate(unknown_words):
+                        self.printTitle(date_title, style=config.DAYTIME_STYLE)
+                        for j, word in enumerate(unknown_words):
+                            if(i == j):
+                                print(config.HEADER_STYLE + word, end=" ")
+                            else:
+                                print(config.UNCERTAIN_STYLE + word, end=" ")
+                        print("\n")
+                        print(config.HEADER_STYLE + unk_word)
                         
-                    db = dbop.get_database(db_dir)
-                    db.add(unk_word)
-                    dbop.write_database(db, db_dir)
+                        database_select = {
+                            "pe": config.PEOPLE_DB,
+                            "pl": config.PLACES_DB
+                        }
+                        
+                        print()
+                        print(config.DAYTIME_STYLE + "-"*20)
+                        print(config.PEOPLE_STYLE + "pe | people")
+                        print(config.PLACES_STYLE + "pl | places")
+                        print(config.DAYTIME_STYLE + "-"*20)
+                        print()
+                        
+                        user_classify = input(config.UNCERTAIN_STYLE +  "Classify: " + config.DEFAULT_STYLE)
+                        if(user_classify == "b"):
+                            break
+                        
+                        try:
+                            db_dir = database_select[user_classify]
+                        except KeyError:
+                            print(config.FALSE_STYLE + "\nNot adding!\n")
+                            os.system("cls")
+                            continue
+                            
+                        db = dbop.get_database(db_dir)
+                        db.add(unk_word)
+                        dbop.write_database(db, db_dir)
 
-                    print(config.TRUE_STYLE + "\nAdded successfully!\n")
-                    os.system("cls")
+                        print(config.TRUE_STYLE + "\nAdded successfully!\n")
+                        os.system("cls")
             else:
                 self.printTitle(date_title, style=config.DAYTIME_STYLE)
                 decrypted_message = cur_today_file.decrypt_file()
@@ -80,6 +80,7 @@ class Diary(Feature):
                     print(text)
 
             if(config.classifying_mode):
+                os.system("cls")
                 self.printTitle(date_title, style=config.DAYTIME_STYLE)
             
             print()
@@ -94,6 +95,25 @@ class Diary(Feature):
                 config.use_normalize_text = not config.use_normalize_text
             elif(user_choose == "csf"):
                 config.classifying_mode = not config.classifying_mode
+            elif(user_choose == "ms"):
+                print()
+                for milestone_category in config.MILESTONE_SUB_MENU:
+                    file_name = milestone_category.replace(" ", "_")
+                    file_dir = f"{config.DIARY_DIR}\\{cur_today_year}\\Milestone\\{file_name}.txt"
+                    
+                    file_read = TextFile(full_dir = file_dir)
+                    
+                    self.process_find_in_text_file(
+                        find_file=file_read,
+                        search_str= [f"{cur_today_day_month}-{cur_today_year}".replace("-", "/")],
+                        accent_mark=True,
+                        case_sensitive=True,
+                        title=f"{milestone_category}",
+                        normalization=False,
+                        whole_word=False,
+                        display_none= False
+                    )
+                input(config.HIGHTLIGHT_STYLE +  "\nFINISHED")
             else:
                 try:
                     cur_today = datetime.strptime(self.__to_format_datetime(user_choose), "%d-%m-%y")
@@ -104,20 +124,31 @@ class Diary(Feature):
         storage.update_latest()
         
         decrypted_message = text_file.decrypt_file()
+        if(not decrypted_message):
+            return
+        
         res = []
+        first_word_line = False
+        is_time_stamp = False
         
         for word in decrypted_message.split(" "):
             if(not word):
                 continue
+            if(is_time_stamp and ("[" not in word and "]" not in word)):
+                first_word_line = True
+                
             is_time_stamp = False
             
             if("[" in word or "]" in word):
                 is_time_stamp = True
                 
-            if(word[0].isupper() and not is_time_stamp):
+            if(word[0].isupper() and not is_time_stamp and not first_word_line):
                 if(unidecode(word.lower()) not in storage.people and unidecode(word.lower()) not in storage.places and word not in storage.people and word not in storage.places):
                     res.append(word)
-        
+
+            if(first_word_line):
+                first_word_line = False
+            
         return res
                 
     
@@ -216,3 +247,13 @@ class Diary(Feature):
         
         day_range = (end_date - start_date).days
         print("\n" + config.HIGHTLIGHT_STYLE + "Found " + config.HEADER_STYLE + str(all_times_found) + config.HIGHTLIGHT_STYLE + " results in " + config.HEADER_STYLE + str(day_range - invalid_files) + config.HIGHTLIGHT_STYLE + " files out of " + config.HEADER_STYLE + str(day_range - no_written_files) + config.HIGHTLIGHT_STYLE + " written files in range of " + config.HEADER_STYLE + str(day_range) + config.HIGHTLIGHT_STYLE + " days in " + config.HEADER_STYLE + time_taken_str + "\n")
+        
+        print(config.HIGHTLIGHT_STYLE + "Completed days is " + config.HEADER_STYLE + str(round((day_range - no_written_files)/(day_range)*10000)/100) + "%")
+        
+        print(config.HIGHTLIGHT_STYLE + "Chance occurs in a day is " + config.HEADER_STYLE + str(round((day_range - invalid_files)/(day_range - no_written_files)*10000)/100) + "%")
+        
+        print(config.HIGHTLIGHT_STYLE + "Average words in day is " + config.HEADER_STYLE + str(round((all_times_found)/(day_range - invalid_files)*10)/10) + config.HIGHTLIGHT_STYLE  + " words")
+        
+        print(config.HIGHTLIGHT_STYLE + "Search speed is " + config.HEADER_STYLE + str(round((time_taken/1000)/(day_range - no_written_files)*1000)/1000) + config.HIGHTLIGHT_STYLE  + " s/day")
+        
+        print()

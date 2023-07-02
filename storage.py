@@ -71,6 +71,8 @@ normalize_language_with_accent_mark = {
     "zì": "gì",
     "zị": "vị",
     "mắ": "má",
+    "a": "anh",
+    "đ": "không",
 }
 
 normalize_language_no_accent_mark = {

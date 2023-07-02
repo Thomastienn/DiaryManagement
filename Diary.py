@@ -72,8 +72,10 @@ class Diary(Feature):
 
                         print(config.TRUE_STYLE + "\nAdded successfully!\n")
                         os.system("cls")
+                storage.update_latest()
             else:
                 self.printTitle(date_title, style=config.DAYTIME_STYLE)
+                self.__print_note(cur_today.strftime("%d-%m-20%y"))
                 decrypted_message = cur_today_file.decrypt_file()
                 if(decrypted_message):
                     text = self.iterate_txt(decrypted_message)
@@ -111,14 +113,38 @@ class Diary(Feature):
                         title=f"{milestone_category}",
                         normalization=False,
                         whole_word=False,
-                        display_none= False
+                        display_none= False,
+                        highlight=False,
+                        highlight_found=False
                     )
                 input(config.HIGHTLIGHT_STYLE +  "\nFINISHED")
+            elif(user_choose == "note"):
+                note_content = input("Note something: ")
+                note_db = dbop.get_database(config.NOTES_DB)
+                cur_date = cur_today.strftime("%d-%m-20%y")
+                
+                if(cur_date not in note_db):
+                    note_db[cur_date] = [note_content]
+                else:
+                    note_db[cur_date] += [note_content]
+                    
+                dbop.write_database(note_db, config.NOTES_DB)
             else:
                 try:
                     cur_today = datetime.strptime(self.__to_format_datetime(user_choose), "%d-%m-%y")
                 except ValueError:
                     break
+    
+    def __print_note(self, date_str) -> None:
+        note_db = dbop.get_database(config.NOTES_DB)
+        if(date_str not in note_db):
+            return
+        
+        self.printTitle(mes="NOTE", style=config.DAYTIME_STYLE)
+        note_content = note_db[date_str]
+        for content in note_content:
+            print("-", content)
+        print()
     
     def __list_unknown_capital_words(self, text_file: TextFile) -> list:
         storage.update_latest()
@@ -227,7 +253,8 @@ class Diary(Feature):
                 case_sensitive=case_sensitive,
                 title=f"{cur_today_day_month}-{cur_today_year}",
                 normalization=normalization,
-                whole_word=whole_word
+                whole_word=whole_word,
+                highlight=False
             )
             if(times_found):
                 all_times_found += times_found
@@ -248,12 +275,25 @@ class Diary(Feature):
         day_range = (end_date - start_date).days
         print("\n" + config.HIGHTLIGHT_STYLE + "Found " + config.HEADER_STYLE + str(all_times_found) + config.HIGHTLIGHT_STYLE + " results in " + config.HEADER_STYLE + str(day_range - invalid_files) + config.HIGHTLIGHT_STYLE + " files out of " + config.HEADER_STYLE + str(day_range - no_written_files) + config.HIGHTLIGHT_STYLE + " written files in range of " + config.HEADER_STYLE + str(day_range) + config.HIGHTLIGHT_STYLE + " days in " + config.HEADER_STYLE + time_taken_str + "\n")
         
-        print(config.HIGHTLIGHT_STYLE + "Completed days is " + config.HEADER_STYLE + str(round((day_range - no_written_files)/(day_range)*10000)/100) + "%")
+        try:
+            print(config.HIGHTLIGHT_STYLE + "Completed days is " + config.HEADER_STYLE + str(round((day_range - no_written_files)/(day_range)*10000)/100) + "%")
+        except ZeroDivisionError:
+            pass
+            
+        try:
+            print(config.HIGHTLIGHT_STYLE + "Chance occurs in a day is " + config.HEADER_STYLE + str(round((day_range - invalid_files)/(day_range - no_written_files)*10000)/100) + "%")
+        except ZeroDivisionError:
+            pass
+            
+        try:
+            print(config.HIGHTLIGHT_STYLE + "Average words in day is " + config.HEADER_STYLE + str(round((all_times_found)/(day_range - invalid_files)*10)/10) + config.HIGHTLIGHT_STYLE  + " words")
+        except ZeroDivisionError:
+            pass
+            
+        try:
+            print(config.HIGHTLIGHT_STYLE + "Search speed is " + config.HEADER_STYLE + str(round((time_taken/1000)/(day_range - no_written_files)*1000)/1000) + config.HIGHTLIGHT_STYLE  + " s/day")
+        except ZeroDivisionError:
+            pass
         
-        print(config.HIGHTLIGHT_STYLE + "Chance occurs in a day is " + config.HEADER_STYLE + str(round((day_range - invalid_files)/(day_range - no_written_files)*10000)/100) + "%")
-        
-        print(config.HIGHTLIGHT_STYLE + "Average words in day is " + config.HEADER_STYLE + str(round((all_times_found)/(day_range - invalid_files)*10)/10) + config.HIGHTLIGHT_STYLE  + " words")
-        
-        print(config.HIGHTLIGHT_STYLE + "Search speed is " + config.HEADER_STYLE + str(round((time_taken/1000)/(day_range - no_written_files)*1000)/1000) + config.HIGHTLIGHT_STYLE  + " s/day")
         
         print()

@@ -8,7 +8,7 @@ DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"
 
 MILESTONE_SUB_MENU = ["SONGS", "MOVIES", "BOOKS", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
-DIARY_MENU = ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting", "Statistics"]
+DIARY_MENU = ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting", "Statistics", "Guide"]
 
 PRIVATE_KEYS_DIR = f"{KEYS_DIR}\\private_key.pem"
 PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
@@ -17,6 +17,7 @@ DATABASE_DIR = PROGRAM_DIR + "\\database"
 STATS_DB = DATABASE_DIR + "\\stats_diary.pkl"
 PEOPLE_DB = DATABASE_DIR + "\\people.pkl"
 PLACES_DB = DATABASE_DIR + "\\places.pkl"
+NOTES_DB = DATABASE_DIR + "\\notes.pkl"
 
 MENU_WIDTH = 20
 TITLE_WIDTH = 20
@@ -36,6 +37,7 @@ TIMESTAMP_STYLE = Fore.YELLOW + Style.BRIGHT
 DAYTIME_STYLE = Fore.BLUE + Style.BRIGHT
 DEFAULT_STYLE = Style.RESET_ALL
 HIGHTLIGHT_STYLE = Fore.WHITE + Style.BRIGHT
+NUMBERIC_STYLE = Fore.RED + Style.BRIGHT
 
 PEOPLE_STYLE = Fore.BLUE + Style.BRIGHT
 PLACES_STYLE = Fore.GREEN + Style.BRIGHT

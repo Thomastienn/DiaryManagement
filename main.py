@@ -288,6 +288,40 @@ def show_stats():
     print(config.HIGHTLIGHT_STYLE + "Last heavy update: " + config.HEADER_STYLE + (last_heavy_up.strftime("%d/%m/") + str(last_heavy_up.year)) + config.HIGHTLIGHT_STYLE + " (" + config.HEADER_STYLE + str((config.shortcut_date["td"] - last_heavy_up).days) + config.HIGHTLIGHT_STYLE + " days)")
     
     print("\n")
+    
+def print_guide():
+    os.system("cls")
+    MAX_WIDTH = 10
+    
+    def print_header(header):
+        print(config.HEADER_STYLE + header)
+    
+    def print_guide(button, desc):
+        print(config.HIGHTLIGHT_STYLE + button + (" "*(MAX_WIDTH-len(button))) + config.DEFAULT_STYLE + desc)
+        
+    print_header("NAV Guide")
+    print_guide("a", "Shift the date back 1 day")
+    print_guide("d", "Shift the date forward 1 day")
+    print_guide("%d-%m-%y", "Switch to specific date")
+    print_guide("anno", "Toggle annotation for normalization")
+    print_guide("nor", "Toggle normalization")
+    print_guide("csf", "Toggle classifying mode (Classify into databases)")
+    print_guide("ms", "Milestones in the current date")
+    print_guide("note", "Add something to the note")
+    print()
+    
+    print_header("Classify Guide")
+    print_guide("pe", "Classify into people database")
+    print_guide("pl", "Classify into places database")
+    print_guide("b", "Exit to NAV mode")
+    print()
+    
+    print_header("Find Guide")
+    print_guide("Set: 0", "Start finding")
+    print_guide("Set: #", "Toggle setting on/off")
+    print_guide("()", "Wrapping combined words (Exact must be false)")
+    
+    print("\n")
 
 def option_4(feature: Feature):
     if(isinstance(feature, Diary)):
@@ -309,6 +343,10 @@ def option_8(feature: Feature):
     if(isinstance(feature, Diary)):
         show_stats()
 
+def option_9(feature: Feature):
+    if(isinstance(feature, Diary)):
+        print_guide()
+
 options = {
     "0": end,
     "1": write_main,
@@ -320,6 +358,7 @@ options = {
     "6": option_6,
     "7": option_7,
     "8": option_8,
+    "9": option_9,
 }  
 
 

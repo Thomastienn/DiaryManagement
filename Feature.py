@@ -112,6 +112,8 @@ class Feature():
                 elif(self.__normalize_text(word) in storage.places or
                     unidecode(word.lower()) in storage.places):
                     res = config.PLACES_STYLE + word + config.DEFAULT_STYLE
+                elif(word.isdigit()):
+                    res = config.NUMBERIC_STYLE + word + config.DEFAULT_STYLE
                 elif(word[0].isupper() and not start_line):
                     if(self.__normalize_text(word) in storage.capital_people or
                     unidecode(word.lower()) in storage.capital_people):
@@ -193,7 +195,7 @@ class Feature():
     # First in the set is TIMES_FOUND
     # Second is the boolean if there is a file
     
-    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none: True) -> set:
+    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none = True, highlight = True, highlight_found = True) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
             return (0, False)
@@ -211,9 +213,9 @@ class Feature():
         
         times_found = 0
         if(len(found_dict) != 0):
-            all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found_dict)
+            all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found_dict, highlight_found=highlight_found)
             self.printTitle(title, style=config.DAYTIME_STYLE)
-            print(self.iterate_txt("".join(all_lines_found)))
+            print(self.iterate_txt("".join(all_lines_found), highlight=highlight))
             times_found += len(found_dict)
         else:
             if(display_none):
@@ -221,7 +223,7 @@ class Feature():
             
         return (times_found, True)
         
-    def index_occ_to_start_line(self, text: str, occ_dict: dict) -> list:
+    def index_occ_to_start_line(self, text: str, occ_dict: dict, highlight_found = True) -> list:
         pos_dic = {}
         for occ in occ_dict.keys():
             start_line_index = occ
@@ -251,7 +253,10 @@ class Feature():
             prev_occ = start
             for occ_word in l_occ_word:
                 occ, word = occ_word
-                final += text[prev_occ:occ] + config.FOUND_STYLE + text[occ:occ + len(word)] + config.DEFAULT_STYLE
+                if(highlight_found):
+                    final += text[prev_occ:occ] + config.FOUND_STYLE + text[occ:occ + len(word)] + config.DEFAULT_STYLE
+                else:
+                    final += text[prev_occ:occ + len(word)]
                 
                 prev_occ = occ + len(word)
             

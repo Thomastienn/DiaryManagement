@@ -11,6 +11,19 @@ class TextFile:
             raise TypeError("Insufficient parameters") 
         file_name = file_name
         self.dir = upper_dir + "\\" + file_name + ".txt"
+    
+    def decrypt_mes(encrypted_mes) -> str:
+        if not config.has_valid_key:
+            return ""
+        with open(config.PRIVATE_KEYS_DIR, 'rb') as key_file:
+            private_key = rsa.PrivateKey.load_pkcs1(key_file.read())
+            
+        return rsa.decrypt(ast.literal_eval(encrypted_mes), private_key).decode("utf-8")
+    
+    def encrypt_mes(mes) -> str:
+        with open(config.PUBLIC_KEYS_DIR, "rb") as key_file:
+            public_key = rsa.PublicKey.load_pkcs1(key_file.read())
+        return str(rsa.encrypt(mes.encode("utf-8"), public_key))
         
     def stored_size(self):
         return os.path.getsize(self.dir)

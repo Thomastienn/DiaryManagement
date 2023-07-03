@@ -120,13 +120,15 @@ class Diary(Feature):
                 input(config.HIGHTLIGHT_STYLE +  "\nFINISHED")
             elif(user_choose == "note"):
                 note_content = input("Note something: ")
+                encrypted_content = TextFile.encrypt_mes(note_content)
+                
                 note_db = dbop.get_database(config.NOTES_DB)
                 cur_date = cur_today.strftime("%d-%m-20%y")
                 
                 if(cur_date not in note_db):
-                    note_db[cur_date] = [note_content]
+                    note_db[cur_date] = [encrypted_content]
                 else:
-                    note_db[cur_date] += [note_content]
+                    note_db[cur_date] += [encrypted_content]
                     
                 dbop.write_database(note_db, config.NOTES_DB)
             else:
@@ -143,7 +145,7 @@ class Diary(Feature):
         self.printTitle(mes="NOTE", style=config.DAYTIME_STYLE)
         note_content = note_db[date_str]
         for content in note_content:
-            print("-", content)
+            print("-", TextFile.decrypt_mes(content))
         print()
     
     def __list_unknown_capital_words(self, text_file: TextFile) -> list:
@@ -160,6 +162,7 @@ class Diary(Feature):
         for word in decrypted_message.split(" "):
             if(not word):
                 continue
+            
             if(is_time_stamp and ("[" not in word and "]" not in word)):
                 first_word_line = True
                 

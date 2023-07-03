@@ -291,13 +291,13 @@ def show_stats():
     
 def print_guide():
     os.system("cls")
-    MAX_WIDTH = 10
+    MAX_WIDTH = 12
     
     def print_header(header):
         print(config.HEADER_STYLE + header)
     
-    def print_guide(button, desc):
-        print(config.HIGHTLIGHT_STYLE + button + (" "*(MAX_WIDTH-len(button))) + config.DEFAULT_STYLE + desc)
+    def print_guide(button, desc, style=config.HIGHTLIGHT_STYLE):
+        print(style + button + (" "*(MAX_WIDTH-len(button))) + config.DEFAULT_STYLE + desc)
         
     print_header("NAV Guide")
     print_guide("a", "Shift the date back 1 day")
@@ -320,8 +320,16 @@ def print_guide():
     print_guide("Set: 0", "Start finding")
     print_guide("Set: #", "Toggle setting on/off")
     print_guide("()", "Wrapping combined words (Exact must be false)")
+    print()
     
-    print("\n")
+    print_header("Color Guide")
+    print_guide("Color", "People", (config.PEOPLE_STYLE))
+    print_guide("Color", "Places", (config.PLACES_STYLE))
+    print_guide("Color", "Names", (config.UNCERTAIN_STYLE))
+    print_guide("Color", "Numbers", (config.NUMBERIC_STYLE))
+    print()
+    
+    print()
 
 def option_4(feature: Feature):
     if(isinstance(feature, Diary)):

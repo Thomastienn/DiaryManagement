@@ -6,7 +6,8 @@ from colorama import Fore, Style
 PROGRAM_DIR = "D:\\DiaryProgram"
 DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"
-RESIZE_PER = 0.1
+IMAGE_TEMP_DIR = "C:\\Users\\PC\\Desktop\\TempImages"
+RESOLUTION = 360
 
 MILESTONE_SUB_MENU = ["SONGS", "MOVIES", "BOOKS", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
 DIARY_MENU = ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting", "Statistics", "Guide"]

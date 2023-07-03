@@ -1,8 +1,9 @@
-import os, config, calendar, time, storage, dbop
+import os, config, calendar, time, storage, dbop, cv2
 from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
 from unidecode import unidecode
+import numpy as np
 # from Milestone import Milestone
 
 class Diary(Feature):
@@ -131,6 +132,16 @@ class Diary(Feature):
                     note_db[cur_date] += [encrypted_content]
                     
                 dbop.write_database(note_db, config.NOTES_DB)
+            elif(user_choose == "img"):
+                TODAY_IMAGE_DIR = f"{config.DIARY_DIR}\\{config.current_year}\\Images\\{config.today_day_month}"
+                
+                for (root,dirs,files) in os.walk(top=TODAY_IMAGE_DIR):
+                    for i,f in enumerate(files):
+                        img = TextFile.decrypt_image(path=TODAY_IMAGE_DIR, name=f)
+                        np_img = TextFile.process_img(img)
+                        cv2.imshow(f"{i+1}/{len(files)}", np_img)
+                        
+                cv2.waitKey(0)
             else:
                 try:
                     cur_today = datetime.strptime(self.__to_format_datetime(user_choose), "%d-%m-%y")

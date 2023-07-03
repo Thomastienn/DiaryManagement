@@ -308,6 +308,7 @@ def print_guide():
     print_guide("csf", "Toggle classifying mode (Classify into databases)")
     print_guide("ms", "Milestones in the current date")
     print_guide("note", "Add something to the note")
+    print_guide("img", "Open images same date")
     print()
     
     print_header("Classify Guide")
@@ -330,6 +331,19 @@ def print_guide():
     print()
     
     print()
+
+def load_img():
+    IMAGE_DIR = f"{config.DIARY_DIR}\\{config.current_year}\\Images"
+    if(not os.path.exists(IMAGE_DIR)):
+        os.mkdir(IMAGE_DIR)
+    TODAY_IMAGE_DIR = f"{IMAGE_DIR}\\{config.today_day_month}"
+    if(not os.path.exists(TODAY_IMAGE_DIR)):
+        os.mkdir(TODAY_IMAGE_DIR)
+    
+    for (root,dirs,files) in os.walk(top=config.IMAGE_TEMP_DIR):
+        for f in files:
+            TextFile.encrypt_image(path=config.IMAGE_TEMP_DIR, name=f, path_to=TODAY_IMAGE_DIR)
+            os.remove(f"{config.IMAGE_TEMP_DIR}\\{f}")
 
 def option_4(feature: Feature):
     if(isinstance(feature, Diary)):
@@ -397,6 +411,7 @@ def run():
     t_db = threading.Thread(target=update_db)
     t_db.start()
     
+    load_img()
     while True:
         os.system('cls')
         current_feature.printMenu(current_feature.get_menu())

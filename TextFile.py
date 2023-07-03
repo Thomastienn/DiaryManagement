@@ -39,7 +39,7 @@ class TextFile:
     def get_image_key() -> int:
         return dbop.get_database(config.IMAGE_KEY_DIR)
 
-    def encrypt_image(path: str, name: str):
+    def encrypt_image(path: str, name: str, path_to: str):
         key = TextFile.get_image_key()
         
         fin = open(f"{path}\\{name}", 'rb')
@@ -50,19 +50,25 @@ class TextFile:
         for index, values in enumerate(image):
             image[index] = values ^ key
 
-        name_no_ext = name.split(".")[0]
-        fin = open(f"{path}\\{name_no_ext}_encrypted.JPG", 'wb')
+        fin = open(f"{path_to}\\{name}", 'wb')
         
         fin.write(image)
         fin.close()
-        print('Encryption Done...')
+    
+    def process_img(image: bytearray):
+        np_img = np.asarray(image, dtype=np.uint8)
+        im = cv2.imdecode(np_img, cv2.IMREAD_COLOR) 
+        
+        resize_rate = config.RESOLUTION/len(im)
+        w_re = int(len(im)*resize_rate)
+        h_re = int(len(im[0])*resize_rate)
+        im = cv2.resize(im, (h_re, w_re), interpolation=cv2.INTER_AREA)   
+        
+        return im
     
     def decrypt_image(path: str, name: str):
         key = TextFile.get_image_key()
         
-        name_no_ext = name.split(".")[0]
-        ext = name.split(".")[1]
-        name = name_no_ext + "_encrypted." + ext
         fin = open(f"{path}\\{name}", 'rb')
 
         image = fin.read()
@@ -72,16 +78,8 @@ class TextFile:
         for index, values in enumerate(image):
             image[index] = values ^ key
         fin.close()
-        print('Decryption Done...')
-
-        np_img = np.asarray(image, dtype=np.uint8)
-        im = cv2.imdecode(np_img, cv2.IMREAD_COLOR) 
         
-        w_re = int(len(im)*config.RESIZE_PER)
-        h_re = int(len(im[0])*config.RESIZE_PER)
-        im = cv2.resize(im, (h_re, w_re), interpolation=cv2.INTER_AREA)   
-        cv2.imshow(name_no_ext, im)
-        cv2.waitKey(0)
+        return image
     
     def decrypt_file(self) -> str:
         # Get private key

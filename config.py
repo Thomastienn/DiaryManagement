@@ -6,12 +6,14 @@ from colorama import Fore, Style
 PROGRAM_DIR = "D:\\DiaryProgram"
 DIARY_DIR = "D:\\Diary"
 KEYS_DIR = "D:\\keys"
+RESIZE_PER = 0.1
 
 MILESTONE_SUB_MENU = ["SONGS", "MOVIES", "BOOKS", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
 DIARY_MENU = ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting", "Statistics", "Guide"]
 
 PRIVATE_KEYS_DIR = f"{KEYS_DIR}\\private_key.pem"
 PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
+IMAGE_KEY_DIR = f"{KEYS_DIR}\\public_key.pkl"
 
 DATABASE_DIR = PROGRAM_DIR + "\\database"
 STATS_DB = DATABASE_DIR + "\\stats_diary.pkl"

@@ -55,7 +55,7 @@ class Milestone(Feature):
         decrypted_message = read_file.decrypt_file()
         
         if(decrypted_message):
-            print(self.iterate_txt(decrypted_message))
+            print(self.iterate_txt(decrypted_message)["content"])
         
     def navigate(self) -> None:
         while True:
@@ -75,7 +75,6 @@ class Milestone(Feature):
         super().printMenu(self.get_sub_menu())
         
     def find(self, find_str, exact, case_sensitive, accent_mark, normalization, whole_word) -> None:
-        os.system("cls")
         self.printHeader(config.MENU_WIDTH)
         print("YYYY YYYY")
         print("-"*config.MENU_WIDTH)

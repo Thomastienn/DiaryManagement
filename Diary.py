@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
 from unidecode import unidecode
-import numpy as np
 # from Milestone import Milestone
 
 class Diary(Feature):
@@ -79,14 +78,23 @@ class Diary(Feature):
                 self.__print_note(cur_today.strftime("%d-%m-20%y"))
                 decrypted_message = cur_today_file.decrypt_file()
                 if(decrypted_message):
-                    text = self.iterate_txt(decrypted_message)
-                    print(text)
+                    processed_txt = self.iterate_txt(decrypted_message)
+                    text = processed_txt["content"]
+                    print(text + "\n")
+                    print(config.HIGHTLIGHT_STYLE + "Words: " + config.HEADER_STYLE + str(processed_txt["n_words"]))
+                else:
+                    print(config.HIGHTLIGHT_STYLE + "Words: " + config.HEADER_STYLE + "0")
 
             if(config.classifying_mode):
                 os.system("cls")
                 self.printTitle(date_title, style=config.DAYTIME_STYLE)
             
-            print()
+            cur_td_str = cur_today.strftime("%d-%m") 
+            TODAY_IMAGE_DIR = f"{config.DIARY_DIR}\\{config.current_year}\\Images\\{cur_td_str}"
+            files = []
+            if(os.path.exists(TODAY_IMAGE_DIR)):
+                files = os.listdir(TODAY_IMAGE_DIR)
+            print(config.HIGHTLIGHT_STYLE + "Images: " + config.HEADER_STYLE + str(len(files)) + "\n")
             user_choose = input("NAV: ")
             if(user_choose == "a"):
                 cur_today = (cur_today - timedelta(days=1))
@@ -121,7 +129,8 @@ class Diary(Feature):
                 input(config.HIGHTLIGHT_STYLE +  "\nFINISHED")
             elif(user_choose == "note"):
                 note_content = input("Note something: ")
-                encrypted_content = TextFile.encrypt_mes(note_content)
+                timestamp = datetime.now().strftime("[%d/%m/20%y %H:%M:%S]") + ": "
+                encrypted_content = TextFile.encrypt_mes(timestamp + note_content)
                 
                 note_db = dbop.get_database(config.NOTES_DB)
                 cur_date = cur_today.strftime("%d-%m-20%y")
@@ -133,15 +142,20 @@ class Diary(Feature):
                     
                 dbop.write_database(note_db, config.NOTES_DB)
             elif(user_choose == "img"):
-                TODAY_IMAGE_DIR = f"{config.DIARY_DIR}\\{config.current_year}\\Images\\{config.today_day_month}"
-                
-                for (root,dirs,files) in os.walk(top=TODAY_IMAGE_DIR):
-                    for i,f in enumerate(files):
-                        img = TextFile.decrypt_image(path=TODAY_IMAGE_DIR, name=f)
-                        np_img = TextFile.process_img(img)
-                        cv2.imshow(f"{i+1}/{len(files)}", np_img)
+                for i, f in enumerate(files):
+                    img = TextFile.decrypt_image(path=TODAY_IMAGE_DIR, name=f)
+                    np_img = TextFile.process_img(img)
+                    cv2.imshow(f"{i+1}/{len(files)}", np_img)
                         
                 cv2.waitKey(0)
+                cv2.destroyAllWindows()
+            elif(user_choose == "srch"):
+                find_txt = input("What you wanna find?: " + config.HEADER_STYLE)
+                today_date=  config.today_day_month + "-" + config.current_year
+                today_range = today_date + " " + today_date
+                self.find(find_txt, exact=False, case_sensitive=False, accent_mark=False, normalization=False, whole_word=False, day_range=today_range, show_stats=False, show_details=False)
+                
+                input("\nFinished")
             else:
                 try:
                     cur_today = datetime.strptime(self.__to_format_datetime(user_choose), "%d-%m-%y")
@@ -198,13 +212,16 @@ class Diary(Feature):
     def __to_format_datetime(self, string_datetime: str) -> str:
         return string_datetime[:-5] + "-" + string_datetime[-2:]
     
-    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool, normalization: bool, whole_word: bool) -> None:
-        os.system("cls")
-        self.printHeader(config.MENU_WIDTH)
-        print("DD-MM-YYYY DD-MM-YYYY")
-        print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
-        user_range = input("Range: ")
-        print(config.HIGHTLIGHT_STYLE + "\nYou want to find " + config.HEADER_STYLE + "\"" + find_str + "\"")
+    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool, normalization: bool, whole_word: bool, day_range:str = None, show_stats: bool = True, show_details: bool = True) -> None:
+        if(show_details):
+            self.printHeader(config.MENU_WIDTH)
+        
+        user_range = day_range
+        if(not day_range):
+            print("DD-MM-YYYY DD-MM-YYYY")
+            print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
+            user_range = input("Range: ")
+            print(config.HIGHTLIGHT_STYLE + "\nYou want to find " + config.HEADER_STYLE + "\"" + find_str + "\"")
         
         start_end = user_range.split(" ")
         
@@ -268,7 +285,8 @@ class Diary(Feature):
                 title=f"{cur_today_day_month}-{cur_today_year}",
                 normalization=normalization,
                 whole_word=whole_word,
-                highlight=False
+                highlight=False,
+                show_details=show_details
             )
             if(times_found):
                 all_times_found += times_found
@@ -279,6 +297,9 @@ class Diary(Feature):
                 no_written_files +=  1
             
             current_date = current_date + timedelta(days=1)
+        
+        if(not show_stats):
+            return
         
         end_time = time.time()
         time_taken = (end_time-start_time)*10**3

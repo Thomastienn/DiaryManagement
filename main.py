@@ -108,6 +108,7 @@ def find_main(main_finder: Feature):
         if(user_chose == "0"):
             need_find_str = input("Enter search str: ")
             if(need_find_str):
+                os.system("cls")
                 main_finder.find(need_find_str, exact=user_exact, 
                                 case_sensitive=user_case_sensitive,
                                 accent_mark=user_accent_mark,
@@ -309,6 +310,7 @@ def print_guide():
     print_guide("ms", "Milestones in the current date")
     print_guide("note", "Add something to the note")
     print_guide("img", "Open images same date")
+    print_guide("srch", "Search in same date")
     print()
     
     print_header("Classify Guide")
@@ -321,6 +323,15 @@ def print_guide():
     print_guide("Set: 0", "Start finding")
     print_guide("Set: #", "Toggle setting on/off")
     print_guide("()", "Wrapping combined words (Exact must be false)")
+    print()
+    
+    print_header("Range Shorcuts")
+    print_guide("s", "The initial date of this diary")
+    print_guide("td", "The date of today")
+    print_guide("sy", "The first date of this year")
+    print_guide("sm", "The first date of this month")
+    print_guide("m#", "The first date of # month or #+1 month (depends on start or end range)")
+    print_guide("y#", "The first date of # year or #+1 year (same as above)")
     print()
     
     print_header("Color Guide")
@@ -340,10 +351,9 @@ def load_img():
     if(not os.path.exists(TODAY_IMAGE_DIR)):
         os.mkdir(TODAY_IMAGE_DIR)
     
-    for (root,dirs,files) in os.walk(top=config.IMAGE_TEMP_DIR):
-        for f in files:
-            TextFile.encrypt_image(path=config.IMAGE_TEMP_DIR, name=f, path_to=TODAY_IMAGE_DIR)
-            os.remove(f"{config.IMAGE_TEMP_DIR}\\{f}")
+    for f in os.listdir(config.IMAGE_TEMP_DIR):
+        TextFile.encrypt_image(path=config.IMAGE_TEMP_DIR, name=f, path_to=TODAY_IMAGE_DIR)
+        os.remove(f"{config.IMAGE_TEMP_DIR}\\{f}")
 
 def option_4(feature: Feature):
     if(isinstance(feature, Diary)):

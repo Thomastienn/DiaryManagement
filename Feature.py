@@ -68,6 +68,7 @@ class Feature():
     def iterate_txt(self, text: str, highlight: bool = True) -> str: 
         final = []
         start_line = False
+        num_words = 0
         for word in text.split(" "):
             if(not word):
                 continue
@@ -94,6 +95,7 @@ class Feature():
                     res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
             else:
                 is_time_stamp = False
+                num_words += 1
             
             findRes = word.find("\n")
             addition_word = ""
@@ -102,6 +104,7 @@ class Feature():
             elif(("[" in word or "]" in word) and findRes != -1):
                 splited = word.split("\n")
                 if(splited[0]):
+                    num_words += 1
                     res = word[:findRes]
                     addition_word = "\n" + config.TIMESTAMP_STYLE + word[findRes+1:] + config.DEFAULT_STYLE
             
@@ -131,7 +134,10 @@ class Feature():
             if(addition_word):
                 final.append(addition_word)
         
-        return " ".join(final)
+        return {
+            "content": (" ".join(final)),
+            "n_words": num_words
+        }
     
     def __normalize_text(self, word: str) -> str:
         if not config.use_annotate_normalize:
@@ -195,7 +201,7 @@ class Feature():
     # First in the set is TIMES_FOUND
     # Second is the boolean if there is a file
     
-    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none = True, highlight = True, highlight_found = True) -> set:
+    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none = True, highlight = True, highlight_found = True, show_details: bool = True) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
             return (0, False)
@@ -214,8 +220,9 @@ class Feature():
         times_found = 0
         if(len(found_dict) != 0):
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found_dict, highlight_found=highlight_found)
-            self.printTitle(title, style=config.DAYTIME_STYLE)
-            print(self.iterate_txt("".join(all_lines_found), highlight=highlight))
+            if(show_details):
+                self.printTitle(title, style=config.DAYTIME_STYLE)
+            print(self.iterate_txt("".join(all_lines_found), highlight=highlight)["content"])
             times_found += len(found_dict)
         else:
             if(display_none):

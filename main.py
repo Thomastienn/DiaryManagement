@@ -341,6 +341,11 @@ def print_guide():
     print_guide("Color", "Numbers", (config.NUMBERIC_STYLE))
     print()
     
+    print_header("Implicit Structure")
+    print_guide("--- or more", "Divide the days if you wanna write yesterday diary and then seperate from today diary")
+    print_guide("Capital words", "Mark as names")
+    print()
+    
     print()
 
 def load_img():

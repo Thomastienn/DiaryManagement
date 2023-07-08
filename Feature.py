@@ -66,9 +66,16 @@ class Feature():
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
     
     def iterate_txt(self, text: str, highlight: bool = True) -> str: 
+        if(not text):
+            return {
+                "content": "",
+                "n_words": 0,
+                "previous_content": False
+            }
         final = []
         start_line = False
         num_words = 0
+        has_many_days_content = False
         for word in text.split(" "):
             if(not word):
                 continue
@@ -129,6 +136,7 @@ class Feature():
                 
             if("---" in word):
                 res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
+                has_many_days_content = True
                 
             final.append(res)
             if(addition_word):
@@ -136,7 +144,8 @@ class Feature():
         
         return {
             "content": (" ".join(final)),
-            "n_words": num_words
+            "n_words": num_words,
+            "previous_content": has_many_days_content
         }
     
     def __normalize_text(self, word: str) -> str:

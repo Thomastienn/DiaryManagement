@@ -77,13 +77,12 @@ class Diary(Feature):
                 self.printTitle(date_title, style=config.DAYTIME_STYLE)
                 self.__print_note(cur_today.strftime("%d-%m-20%y"))
                 decrypted_message = cur_today_file.decrypt_file()
-                if(decrypted_message):
-                    processed_txt = self.iterate_txt(decrypted_message)
-                    text = processed_txt["content"]
+                processed_txt = self.iterate_txt(decrypted_message)
+                text = processed_txt["content"]
+                if(text):
                     print(text + "\n")
-                    print(config.HIGHTLIGHT_STYLE + "Words: " + config.HEADER_STYLE + str(processed_txt["n_words"]))
-                else:
-                    print(config.HIGHTLIGHT_STYLE + "Words: " + config.HEADER_STYLE + "0")
+                print(config.HIGHTLIGHT_STYLE + "Words: " + config.HEADER_STYLE + str(processed_txt["n_words"]))
+                print(config.HIGHTLIGHT_STYLE + "Previous days: " + config.HEADER_STYLE + str(processed_txt["previous_content"]))
 
             if(config.classifying_mode):
                 os.system("cls")

@@ -69,12 +69,13 @@ class Feature():
         if(not text):
             return {
                 "content": "",
-                "n_words": 0,
+                "n_words": [0],
                 "previous_content": False
             }
         final = []
         start_line = False
         num_words = 0
+        num_words_l = []
         has_many_days_content = False
         for word in text.split(" "):
             if(not word):
@@ -137,14 +138,17 @@ class Feature():
             if("---" in word):
                 res = config.TIMESTAMP_STYLE + word + config.DEFAULT_STYLE
                 has_many_days_content = True
+                num_words_l.append(num_words)
+                num_words = 0
                 
             final.append(res)
             if(addition_word):
                 final.append(addition_word)
         
+        num_words_l.append(num_words)
         return {
             "content": (" ".join(final)),
-            "n_words": num_words,
+            "n_words": num_words_l,
             "previous_content": has_many_days_content
         }
     
@@ -164,7 +168,33 @@ class Feature():
             res = config.TRUE_STYLE + storage.normalize_language_no_accent_mark.get(unidecode(res).lower() , res) + config.FALSE_STYLE + "(" + word + ")"
         
         return res
+              
+    def process_wrapping(self, search_str: list) -> str:
+        res = []
+        i = 0
+        while i < len(search_str):
+            t = search_str[i]
+            
+            if("(" in t):
+                full_str = t[1:]
+                if(")" in t):
+                    full_str = full_str[:-1]
+                else:
+                    for j in range(i+1, len(search_str)):
+                        t_1 = search_str[j]
+                        if(")" in t_1):
+                            full_str += " " + t_1[:-1]
+                            i = j
+                            break
+                        else:
+                            full_str += " " + t_1
+                res.append(full_str)
+            else:
                 
+                res.append(t)
+                        
+            i+=1
+        return res
     
     def preprocess_find_str(self, find_str, case_sensitive, accent_mark, exact) -> list:
         if(not case_sensitive):
@@ -173,34 +203,8 @@ class Feature():
             find_str = unidecode(find_str)
         search_str = []
         if(not exact):
-            search_str = find_str.split(" ")
-
-            res = []
-            i = 0
-            while i < len(search_str):
-                t = search_str[i]
-                
-                if("(" in t):
-                    full_str = t[1:]
-                    if(")" in t):
-                        full_str = full_str[:-1]
-                    else:
-                        for j in range(i+1, len(search_str)):
-                            t_1 = search_str[j]
-                            if(")" in t_1):
-                                full_str += " " + t_1[:-1]
-                                i = j
-                                break
-                            else:
-                                full_str += " " + t_1
-                    res.append(full_str)
-                else:
-                    
-                    res.append(t)
-                            
-                i+=1
-            
-            search_str = res
+            search_str = find_str.strip().split(" ")
+            search_str = self.process_wrapping(search_str)
         else:
             search_str.append(find_str)
             
@@ -213,7 +217,10 @@ class Feature():
     def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none = True, highlight = True, highlight_found = True, show_details: bool = True) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
-            return (0, False)
+            return {
+                "times_found": 0,
+                "is_written": False,
+            }
         if(normalization):
             all_text_day = " ".join([self.__normalize_text(word) for word in all_text_day.split(" ")])
         
@@ -237,7 +244,10 @@ class Feature():
             if(display_none):
                 print(config.NONE_STYLE + title + " NONE")
             
-        return (times_found, True)
+        return {
+            "times_found": times_found,
+            "is_written": True,
+        }
         
     def index_occ_to_start_line(self, text: str, occ_dict: dict, highlight_found = True) -> list:
         pos_dic = {}

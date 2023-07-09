@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from Feature import Feature
 from TextFile import TextFile
 from unidecode import unidecode
+import matplotlib.pyplot as plt
 # from Milestone import Milestone
 
 class Diary(Feature):
@@ -81,7 +82,10 @@ class Diary(Feature):
                 text = processed_txt["content"]
                 if(text):
                     print(text + "\n")
-                print(config.HIGHTLIGHT_STYLE + "Words: " + config.HEADER_STYLE + str(processed_txt["n_words"]))
+                    
+                total_str = (config.HIGHTLIGHT_STYLE + " = " + config.HEADER_STYLE + str(sum(processed_txt["n_words"])) if processed_txt["previous_content"] else "")
+                
+                print(config.HIGHTLIGHT_STYLE + "Words: " + config.HEADER_STYLE + (" | ".join(map(lambda x: str(x), processed_txt["n_words"]))) + total_str)
                 print(config.HIGHTLIGHT_STYLE + "Previous days: " + config.HEADER_STYLE + str(processed_txt["previous_content"]))
 
             if(config.classifying_mode):
@@ -266,17 +270,25 @@ class Diary(Feature):
         current_date = start_date
         end_date = end_date+timedelta(days=1)
         
+        # Counting
         all_times_found = 0
         invalid_files = 0
         no_written_files = 0
         start_time = time.time()
+        
+        # Plotting purposes
+        days_range = []
+        words_frequency = []
+        write_frequency = []
+        
         while current_date != end_date:
+            days_range.append(current_date)
             cur_today_day_month, cur_today_year = self.__datetime_to_month_year(current_date)
             cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
             current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
                                          file_name=cur_today_day_month)
             
-            times_found, is_written = self.process_find_in_text_file(
+            res_dic = self.process_find_in_text_file(
                 find_file=current_date_file,
                 search_str=search_str,
                 accent_mark=accent_mark,
@@ -287,6 +299,10 @@ class Diary(Feature):
                 highlight=False,
                 show_details=show_details
             )
+            times_found = res_dic["times_found"]
+            is_written = res_dic["is_written"]
+
+            words_frequency.append(times_found)
             if(times_found):
                 all_times_found += times_found
             else:
@@ -294,6 +310,9 @@ class Diary(Feature):
                 
             if(not is_written):
                 no_written_files +=  1
+                write_frequency.append(0)
+            else:
+                write_frequency.append(1)
             
             current_date = current_date + timedelta(days=1)
         
@@ -329,5 +348,16 @@ class Diary(Feature):
         except ZeroDivisionError:
             pass
         
+        fig, axes = plt.subplots(2, sharex=True)
+        fig.supxlabel("Date")
+        
+        axes[0].step(days_range, words_frequency) 
+        axes[0].set_ylabel("Words in a day")
+        
+        axes[1].step(days_range, write_frequency)
+        axes[1].set_ylabel("Has written")
+        
+        fig.autofmt_xdate()
+        fig.show()
         
         print()

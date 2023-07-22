@@ -58,6 +58,7 @@ class Diary(Feature):
                         
                         user_classify = input(config.UNCERTAIN_STYLE +  "Classify: " + config.DEFAULT_STYLE)
                         if(user_classify == "b"):
+                            config.classifying_mode = False
                             break
                         
                         try:
@@ -215,7 +216,7 @@ class Diary(Feature):
     def __to_format_datetime(self, string_datetime: str) -> str:
         return string_datetime[:-5] + "-" + string_datetime[-2:]
     
-    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool, normalization: bool, whole_word: bool, day_range:str = None, show_stats: bool = True, show_details: bool = True) -> None:
+    def find(self, find_str: str, exact: bool, case_sensitive: bool, accent_mark: bool, normalization: bool, whole_word: bool, day_range:str = None, show_stats: bool = True, show_details: bool = True, same_date: bool = False) -> None:
         if(show_details):
             self.printHeader(config.MENU_WIDTH)
         
@@ -280,6 +281,7 @@ class Diary(Feature):
         days_range = []
         words_frequency = []
         write_frequency = []
+        each_word_frequency = {}
         
         while current_date != end_date:
             days_range.append(current_date)
@@ -297,10 +299,18 @@ class Diary(Feature):
                 normalization=normalization,
                 whole_word=whole_word,
                 highlight=False,
-                show_details=show_details
+                show_details=show_details,
+                same_date=same_date
             )
             times_found = res_dic["times_found"]
             is_written = res_dic["is_written"]
+            word_freq = res_dic["word_freq"]
+            
+            for word, freq in word_freq.items():
+                if word not in each_word_frequency:
+                    each_word_frequency[word] = freq
+                else:
+                    each_word_frequency[word] += freq
 
             words_frequency.append(times_found)
             if(times_found):
@@ -327,6 +337,10 @@ class Diary(Feature):
         
         day_range = (end_date - start_date).days
         print("\n" + config.HIGHTLIGHT_STYLE + "Found " + config.HEADER_STYLE + str(all_times_found) + config.HIGHTLIGHT_STYLE + " results in " + config.HEADER_STYLE + str(day_range - invalid_files) + config.HIGHTLIGHT_STYLE + " files out of " + config.HEADER_STYLE + str(day_range - no_written_files) + config.HIGHTLIGHT_STYLE + " written files in range of " + config.HEADER_STYLE + str(day_range) + config.HIGHTLIGHT_STYLE + " days in " + config.HEADER_STYLE + time_taken_str + "\n")
+        
+        print(config.HIGHTLIGHT_STYLE + "Word Map")
+        for word,freq in each_word_frequency.items():
+            print(config.HIGHTLIGHT_STYLE + word + " | " + config.HEADER_STYLE + str(freq))
         
         try:
             print(config.HIGHTLIGHT_STYLE + "Completed days is " + config.HEADER_STYLE + str(round((day_range - no_written_files)/(day_range)*10000)/100) + "%")

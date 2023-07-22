@@ -82,11 +82,12 @@ def find_main(main_finder: Feature):
     config.use_annotate_normalize = False
     
     # Default value
-    user_exact = True #22-12-2022 17-03-2023
+    user_exact = False #22-12-2022 17-03-2023
     user_case_sensitive = False
     user_accent_mark = False
     user_normalization = False
     user_whole_word = False
+    user_all_same_day = False
     
     def print_find_properties():
         main_finder.printHeader(config.MENU_WIDTH)
@@ -95,6 +96,7 @@ def find_main(main_finder: Feature):
         print_option(3, "ACCENT MARK: ", user_accent_mark)
         print_option(4, "NORMALIZATION: ", user_normalization)
         print_option(5, "WHOLE WORD: ", user_whole_word)
+        print_option(6, "SAME DATE: ", user_all_same_day)
         
         print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
         print(config.HIGHTLIGHT_STYLE + "0. START")
@@ -113,7 +115,8 @@ def find_main(main_finder: Feature):
                                 case_sensitive=user_case_sensitive,
                                 accent_mark=user_accent_mark,
                                 normalization=user_normalization,
-                                whole_word=user_whole_word)
+                                whole_word=user_whole_word,
+                                same_date=user_all_same_day)
             break
         if(user_chose == "1"):
             user_exact = not user_exact
@@ -125,6 +128,8 @@ def find_main(main_finder: Feature):
             user_normalization = not user_normalization
         elif(user_chose == "5"):
             user_whole_word = not user_whole_word
+        elif(user_chose == "6"):
+            user_all_same_day = not user_all_same_day
         else:
             break
         
@@ -342,8 +347,8 @@ def print_guide():
     print()
     
     print_header("Implicit Structure")
-    print_guide("--- or more", "Divide the days if you wanna write yesterday diary and then seperate from today diary")
-    print_guide("Capital words", "Mark as names")
+    print_guide("---", "Divide the days if you wanna write yesterday diary and then seperate from today diary")
+    print_guide("Capital", "Mark as names")
     print()
     
     print()

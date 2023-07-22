@@ -25,7 +25,7 @@ class Feature():
         pass
     
     @abstractmethod        
-    def find(self, find_str, exact, case_sensitive, accent_mark, normalization, whole_word) -> None:
+    def find(self, find_str, exact, case_sensitive, accent_mark, normalization, whole_word, same_date) -> None:
         pass
     
     def find_all(self, origin: str, list_sub: list, whole_word: bool) -> dict:
@@ -214,12 +214,13 @@ class Feature():
     # First in the set is TIMES_FOUND
     # Second is the boolean if there is a file
     
-    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none = True, highlight = True, highlight_found = True, show_details: bool = True) -> set:
+    def process_find_in_text_file(self, find_file: TextFile, search_str, accent_mark, case_sensitive, title, normalization, whole_word, display_none = True, highlight = True, highlight_found = True, show_details: bool = True, same_date: bool = False) -> set:
         all_text_day = find_file.decrypt_file()
         if(not all_text_day):
             return {
                 "times_found": 0,
                 "is_written": False,
+                "word_freq": {}
             }
         if(normalization):
             all_text_day = " ".join([self.__normalize_text(word) for word in all_text_day.split(" ")])
@@ -233,12 +234,26 @@ class Feature():
             
         found_dict = self.find_all(all_text_day, search_str, whole_word)
         
+        all_find_str_in_same_date = True
+        if(same_date):
+            for find_str in search_str:
+                if find_str not in found_dict.values():
+                    all_find_str_in_same_date = False
+                    
         times_found = 0
-        if(len(found_dict) != 0):
+        word_freq = {}
+        if(len(found_dict) != 0 and ((same_date and all_find_str_in_same_date) or (not same_date))):
+            for word_found in found_dict.values():
+                if word_found not in word_freq:
+                    word_freq[word_found] = 1
+                else:
+                    word_freq[word_found] += 1
+                
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found_dict, highlight_found=highlight_found)
             if(show_details):
                 self.printTitle(title, style=config.DAYTIME_STYLE)
-            print(self.iterate_txt("".join(all_lines_found), highlight=highlight)["content"])
+            res = self.iterate_txt("".join(all_lines_found), highlight=highlight)
+            print(res["content"])
             times_found += len(found_dict)
         else:
             if(display_none):
@@ -247,6 +262,7 @@ class Feature():
         return {
             "times_found": times_found,
             "is_written": True,
+            "word_freq": word_freq,
         }
         
     def index_occ_to_start_line(self, text: str, occ_dict: dict, highlight_found = True) -> list:

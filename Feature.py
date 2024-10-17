@@ -65,7 +65,7 @@ class Feature():
     def printHeader(self, width):
         print(config.select_valid_header_style() + self.__class__.__name__.center(width, "-"))
     
-    def iterate_txt(self, text: str, highlight: bool = True) -> str: 
+    def iterate_txt(self, text: str) -> str: 
         if(not text):
             return {
                 "content": "",
@@ -86,6 +86,9 @@ class Feature():
             
             if(config.use_normalize_text):
                 res = self.__normalize_text(word)
+            
+            if(config.break_sentence and "." in word):
+                res += "\n"
             
             if("[" in word and config.DEFAULT_STYLE not in word
                and config.FOUND_STYLE not in word):
@@ -116,7 +119,7 @@ class Feature():
                     res = word[:findRes]
                     addition_word = "\n" + config.TIMESTAMP_STYLE + word[findRes+1:] + config.DEFAULT_STYLE
             
-            if(highlight):
+            if(config.highlight_text):
                 if(self.__normalize_text(word) in storage.people or
                     unidecode(word.lower()) in storage.people):
                     res = config.PEOPLE_STYLE + word + config.DEFAULT_STYLE
@@ -140,7 +143,7 @@ class Feature():
                 has_many_days_content = True
                 num_words_l.append(num_words)
                 num_words = 0
-                
+             
             final.append(res)
             if(addition_word):
                 final.append(addition_word)
@@ -252,7 +255,7 @@ class Feature():
             all_lines_found = self.index_occ_to_start_line(immutable_all_text_day, found_dict, highlight_found=highlight_found)
             if(show_details):
                 self.printTitle(title, style=config.DAYTIME_STYLE)
-            res = self.iterate_txt("".join(all_lines_found), highlight=highlight)
+            res = self.iterate_txt("".join(all_lines_found))
             print(res["content"])
             times_found += len(found_dict)
         else:

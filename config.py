@@ -3,14 +3,14 @@ import time
 from colorama import Fore, Style
 
 #! SETUP 
-PROGRAM_DIR = "D:\\DiaryProgram"
-DIARY_DIR = "D:\\Diary"
-KEYS_DIR = "D:\\keys"
-IMAGE_TEMP_DIR = "C:\\Users\\PC\\Desktop\\TempImages"
+PROGRAM_DIR = "D:\\May MSI\\DiaryProgram"
+DIARY_DIR = "D:\\May MSI\\Diary"
+KEYS_DIR = "D:\\May MSI\\keys"
+IMAGE_TEMP_DIR = "C:\\Users\\thoma\\TempImages"
 RESOLUTION = 360
 
 MILESTONE_SUB_MENU = ["SONGS", "MOVIES", "BOOKS", "DAILY LIFE", "NEW FOOD", "NEW PEOPLE", "NEW PLACES", "NEW ACTIVITY", "TRENDING", "VERSIONS"]
-DIARY_MENU = ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Setting", "Statistics", "Guide"]
+DIARY_MENU = ["Write", "Read", "Find", "Milestone", "Insert key", "Remove key", "Statistics", "Guide", "Valid Files"]
 
 PRIVATE_KEYS_DIR = f"{KEYS_DIR}\\private_key.pem"
 PUBLIC_KEYS_DIR = f"{KEYS_DIR}\\public_key.pem"
@@ -52,7 +52,8 @@ use_normalize_text = False
 use_annotate_normalize = False
 use_translation = False
 classifying_mode = False
-
+highlight_text = True
+break_sentence = False
 
 def init_update():
     global today,today_day_month, current_year, today_file_dir, today_day_month, this_year_dir, shortcut_date

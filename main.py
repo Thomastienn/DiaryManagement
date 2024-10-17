@@ -5,7 +5,7 @@ from TextFile import TextFile
 from Feature import Feature
 from colorama import init
 from pyasn1.error import SubstrateUnderrunError
-from googletrans import Translator
+#from googletrans import Translator
 from datetime import timedelta, datetime
 
 def send_notification(mess: str, desc: str, noti_type="info"):
@@ -35,42 +35,6 @@ def read_main(main_reader: Feature):
 
 def print_option(index: int, name: str, user_bool: bool):
     print(config.HEADER_STYLE + str(index) + " | " + config.FUNCTION_STYLE + name, config.select_bool_style(user_bool))
-    
-def setting_main():
-    global main_diary
-    
-    if(not config.has_valid_key):
-        print("Don't be sneaky")
-        return
-    
-    def print_properties():
-        main_diary.printHeader(config.MENU_WIDTH)
-        print_option(1, "NORMALIZATION: ", config.use_normalize_text)
-        print_option(2, "ANNOTATION: ", config.use_annotate_normalize)
-        print_option(3, "TRANSLATION: ", config.use_translation)
-        print_option(4, "CLASSIFYING: ", config.classifying_mode)
-        
-        print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
-    while True:
-        os.system("cls")
-        print_properties()
-        user_chose = input("Set: ")
-        
-        if(user_chose == "0"):
-            return
-        if(user_chose == "1"):
-            config.use_normalize_text = not config.use_normalize_text
-        elif(user_chose == "2"):
-            config.use_annotate_normalize = not config.use_annotate_normalize
-            if(config.use_annotate_normalize):
-                config.use_normalize_text = config.use_annotate_normalize
-        elif(user_chose == "3"):
-            config.use_translation = not config.use_translation
-        elif(user_chose == "4"):
-            config.classifying_mode = not config.classifying_mode
-        else:
-            break
-    
 
 def find_main(main_finder: Feature):
     if(not config.has_valid_key):
@@ -183,6 +147,8 @@ def check_key_valid():
         config.has_valid_key = False
     
 def update_light_weight_db():
+    if(not config.has_valid_key):
+        return
     db = dbop.get_database(config.STATS_DB)
     
     start_date = current_day = db["last_light_updated"]
@@ -215,7 +181,7 @@ def update_light_weight_db():
 # It will use as a sync feature once the diary is 4 years old
 def update_heavy_db():
     db = dbop.get_database(config.STATS_DB)
-    if((config.shortcut_date["td"] - db["last_heavy_updated"]).days < 90):
+    if((config.shortcut_date["td"] - db["last_heavy_updated"]).days < 90 or not config.has_valid_key):
         return
     
     total_bytes = 0
@@ -311,6 +277,8 @@ def print_guide():
     print_guide("%d-%m-%y", "Switch to specific date")
     print_guide("anno", "Toggle annotation for normalization")
     print_guide("nor", "Toggle normalization")
+    print_guide("hl", "Toggle highlighting text")
+    print_guide("bs", "Toggle breaking sentences")
     print_guide("csf", "Toggle classifying mode (Classify into databases)")
     print_guide("ms", "Milestones in the current date")
     print_guide("note", "Add something to the note")
@@ -379,15 +347,15 @@ def option_6(feature: Feature):
         
 def option_7(feature: Feature):
     if(isinstance(feature, Diary)):
-        setting_main()
+        show_stats()
         
 def option_8(feature: Feature):
     if(isinstance(feature, Diary)):
-        show_stats()
-
+        print_guide()
 def option_9(feature: Feature):
     if(isinstance(feature, Diary)):
-        print_guide()
+        os.system("cls")
+        feature.valid_file()
 
 options = {
     "0": end,
@@ -416,6 +384,8 @@ def update_db():
 
 def run():
     global current_feature, main_diary, main_milestone
+    
+    print(config.HEADER_STYLE + "LOADING...")
     
     # Init and update the config file every second
     t = threading.Thread(target=config.update)

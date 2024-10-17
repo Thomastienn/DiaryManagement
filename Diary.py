@@ -118,6 +118,8 @@ class Diary(Feature):
                     
                     file_read = TextFile(full_dir = file_dir)
                     
+                    hl_text = config.highlight_text
+                    config.highlight_text = False
                     self.process_find_in_text_file(
                         find_file=file_read,
                         search_str= [f"{cur_today_day_month}-{cur_today_year}".replace("-", "/")],
@@ -127,9 +129,10 @@ class Diary(Feature):
                         normalization=False,
                         whole_word=False,
                         display_none= False,
-                        highlight=False,
                         highlight_found=False
                     )
+                    config.highlight_text = hl_text
+                    
                 input(config.HIGHTLIGHT_STYLE +  "\nFINISHED")
             elif(user_choose == "note"):
                 note_content = input("Note something: ")
@@ -155,11 +158,15 @@ class Diary(Feature):
                 cv2.destroyAllWindows()
             elif(user_choose == "srch"):
                 find_txt = input("What you wanna find?: " + config.HEADER_STYLE)
-                today_date=  config.today_day_month + "-" + config.current_year
+                today_date = cur_today.strftime("%d-%m-20%y")
                 today_range = today_date + " " + today_date
                 self.find(find_txt, exact=False, case_sensitive=False, accent_mark=False, normalization=False, whole_word=False, day_range=today_range, show_stats=False, show_details=False)
                 
                 input("\nFinished")
+            elif(user_choose == "hl"):
+                config.highlight_text = not config.highlight_text
+            elif(user_choose == "bs"):
+                config.break_sentence = not config.break_sentence
             else:
                 try:
                     cur_today = datetime.strptime(self.__to_format_datetime(user_choose), "%d-%m-%y")
@@ -247,7 +254,7 @@ class Diary(Feature):
             end_date = config.shortcut_date.get(end)
         else:
             if(end[0] == "y"):
-                end_date = datetime(day=1, month=1, year=int(end[1:] + 1))
+                end_date = datetime(day=1, month=1, year=int(int(end[1:]) + 1))
             elif(end[0] == "m"):
                 next_month = int(end[1:]) + 1
                 if(next_month == 13):
@@ -327,6 +334,7 @@ class Diary(Feature):
             current_date = current_date + timedelta(days=1)
         
         if(not show_stats):
+            input()
             return
         
         end_time = time.time()
@@ -341,6 +349,7 @@ class Diary(Feature):
         print(config.HIGHTLIGHT_STYLE + "Word Map")
         for word,freq in each_word_frequency.items():
             print(config.HIGHTLIGHT_STYLE + word + " | " + config.HEADER_STYLE + str(freq))
+        print()
         
         try:
             print(config.HIGHTLIGHT_STYLE + "Completed days is " + config.HEADER_STYLE + str(round((day_range - no_written_files)/(day_range)*10000)/100) + "%")
@@ -375,3 +384,57 @@ class Diary(Feature):
         fig.show()
         
         print()
+    
+    def valid_file(self):
+        self.printHeader(config.MENU_WIDTH)
+        print("DD-MM-YYYY DD-MM-YYYY")
+        print(config.HEADER_STYLE + "-"*config.MENU_WIDTH)
+        user_range = input("Range: ")
+        
+        start_end = user_range.split(" ")
+        
+        start_date = None
+        end_date = None
+        start = start_end[0]
+        if(start in config.shortcut_date):
+            start_date = config.shortcut_date.get(start)
+        else:
+            # Format: yYYYY 
+            # Ex: y2022
+            if(start[0] == "y"):
+                start_date = datetime(day=1, month=1, year=int(start[1:]))
+            elif(start[0] == "m"):
+                start_date = datetime(day=1, month=int(start[1:]), year=int(config.current_year))
+            else:
+                start_date = datetime.strptime(self.__to_format_datetime(start), "%d-%m-%y")
+        
+        end = start_end[1]
+        if(end in config.shortcut_date):
+            end_date = config.shortcut_date.get(end)
+        else:
+            if(end[0] == "y"):
+                end_date = datetime(day=1, month=1, year=int(int(end[1:]) + 1))
+            elif(end[0] == "m"):
+                next_month = int(end[1:]) + 1
+                if(next_month == 13):
+                    next_month = 1
+                end_date = datetime(day=1, month=next_month, year=int(config.current_year))
+            else:
+                end_date = datetime.strptime(self.__to_format_datetime(end), "%d-%m-%y")
+        
+        current_date = start_date
+        while current_date != end_date:
+            cur_today_day_month, cur_today_year = self.__datetime_to_month_year(current_date)
+            cur_today_file_upper_dir = config.DIARY_DIR + "\\" + cur_today_year
+            current_date_file = TextFile(upper_dir=cur_today_file_upper_dir,
+                                         file_name=cur_today_day_month)
+            
+            all_text_day = current_date_file.decrypt_file()
+            if(all_text_day == None):
+                current_date = current_date + timedelta(days=1)
+                continue
+            title = f"{cur_today_day_month}-{cur_today_year}"
+            self.printTitle(title,style=config.DAYTIME_STYLE)
+            
+            current_date = current_date + timedelta(days=1)
+        

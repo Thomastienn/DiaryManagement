@@ -1,0 +1,12 @@
+name: workflow
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MYNOTIFIER_API_KEY: ${{ secrets.MYNOTIFIER_API_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Use secret
+        run: echo $MYNOTIFIER_API_KEY

@@ -261,68 +261,12 @@ def show_stats():
     
     print("\n")
     
-def print_guide():
-    os.system("cls")
-    MAX_WIDTH = 12
-    
-    def print_header(header):
-        print(config.HEADER_STYLE + header)
-    
-    def print_guide(button, desc, style=config.HIGHTLIGHT_STYLE):
-        print(style + button + (" "*(MAX_WIDTH-len(button))) + config.DEFAULT_STYLE + desc)
-        
-    print_header("NAV Guide")
-    print_guide("a", "Shift the date back 1 day")
-    print_guide("d", "Shift the date forward 1 day")
-    print_guide("%d-%m-%y", "Switch to specific date")
-    print_guide("anno", "Toggle annotation for normalization")
-    print_guide("nor", "Toggle normalization")
-    print_guide("hl", "Toggle highlighting text")
-    print_guide("bs", "Toggle breaking sentences")
-    print_guide("csf", "Toggle classifying mode (Classify into databases)")
-    print_guide("ms", "Milestones in the current date")
-    print_guide("note", "Add something to the note")
-    print_guide("img", "Open images same date")
-    print_guide("srch", "Search in same date")
-    print()
-    
-    print_header("Classify Guide")
-    print_guide("pe", "Classify into people database")
-    print_guide("pl", "Classify into places database")
-    print_guide("b", "Exit to NAV mode")
-    print()
-    
-    print_header("Find Guide")
-    print_guide("Set: 0", "Start finding")
-    print_guide("Set: #", "Toggle setting on/off")
-    print_guide("()", "Wrapping combined words (Exact must be false)")
-    print()
-    
-    print_header("Range Shorcuts")
-    print_guide("s", "The initial date of this diary")
-    print_guide("td", "The date of today")
-    print_guide("sy", "The first date of this year")
-    print_guide("sm", "The first date of this month")
-    print_guide("m#", "The first date of # month or #+1 month (depends on start or end range)")
-    print_guide("y#", "The first date of # year or #+1 year (same as above)")
-    print()
-    
-    print_header("Color Guide")
-    print_guide("Color", "People", (config.PEOPLE_STYLE))
-    print_guide("Color", "Places", (config.PLACES_STYLE))
-    print_guide("Color", "Names", (config.UNCERTAIN_STYLE))
-    print_guide("Color", "Numbers", (config.NUMBERIC_STYLE))
-    print()
-    
-    print_header("Implicit Structure")
-    print_guide("---", "Divide the days if you wanna write yesterday diary and then seperate from today diary")
-    print_guide("Capital", "Mark as names")
-    print()
-    
-    print()
 
 def load_img():
-    IMAGE_DIR = f"{config.DIARY_DIR}\\{config.current_year}\\Images"
+    YEAR_DIR = f"{config.DIARY_DIR}\\{config.current_year}"
+    if(not os.path.exists(YEAR_DIR)):
+        os.mkdir(YEAR_DIR)
+    IMAGE_DIR = f"{YEAR_DIR}\\Images"
     if(not os.path.exists(IMAGE_DIR)):
         os.mkdir(IMAGE_DIR)
     TODAY_IMAGE_DIR = f"{IMAGE_DIR}\\{config.today_day_month}"
@@ -351,7 +295,7 @@ def option_7(feature: Feature):
         
 def option_8(feature: Feature):
     if(isinstance(feature, Diary)):
-        print_guide()
+        feature.print_full_guide()
 def option_9(feature: Feature):
     if(isinstance(feature, Diary)):
         os.system("cls")

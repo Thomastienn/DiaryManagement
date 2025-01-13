@@ -167,6 +167,8 @@ class Diary(Feature):
                 config.highlight_text = not config.highlight_text
             elif(user_choose == "bs"):
                 config.break_sentence = not config.break_sentence
+            elif(user_choose == "help"):
+                self.print_full_guide()
             else:
                 try:
                     cur_today = datetime.strptime(self.__to_format_datetime(user_choose), "%d-%m-%y")

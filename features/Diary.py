@@ -1,7 +1,7 @@
-import os, config, calendar, time, storage, dbop, cv2
+import os, utils.config, calendar, time, storage, dbop, cv2
 from datetime import datetime, timedelta
 from Feature import Feature
-from TextFile import TextFile
+from utils.TextFile import TextFile
 from unidecode import unidecode
 import matplotlib.pyplot as plt
 # from Milestone import Milestone

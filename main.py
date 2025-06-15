@@ -1,4 +1,5 @@
-import os, threading, config, rsa, requests, secret_storage, time, pickle, dbop
+import multiprocessing
+import os, config, rsa, requests, secret_storage, time, pickle, dbop
 from Diary import Diary
 from Milestone import Milestone
 from TextFile import TextFile
@@ -332,7 +333,7 @@ def run():
     print(config.HEADER_STYLE + "LOADING...")
     
     # Init and update the config file every second
-    t = threading.Thread(target=config.update)
+    t = multiprocessing.Process(target=config.update)
     t.start()
     
     main_diary = Diary(dir=config.DIARY_DIR)
@@ -342,7 +343,7 @@ def run():
     
     check_key_valid()
     
-    t_db = threading.Thread(target=update_db)
+    t_db = multiprocessing.Process(target=update_db)
     t_db.start()
     
     load_img()

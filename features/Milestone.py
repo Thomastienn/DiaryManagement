@@ -2,9 +2,9 @@ import os
 from datetime import datetime
 from Diary import Diary
 from Feature import Feature
-from TextFile import TextFile
+from utils.TextFile import TextFile
 from unidecode import unidecode
-import config
+import utils.config
 
 class Milestone(Feature):
     def __init__(self, diary: Diary, year: int) -> None:

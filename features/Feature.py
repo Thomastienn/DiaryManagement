@@ -1,7 +1,7 @@
 import os
-import config
+import utils.config
 from abc import abstractmethod
-from TextFile import TextFile
+from utils.TextFile import TextFile
 from unidecode import unidecode
 import storage
 from autocorrect import Speller

@@ -2,8 +2,7 @@ from datetime import datetime
 import time
 from colorama import Fore, Style
 
-#! SETUP 
-PROGRAM_DIR = "D:\\May MSI\\DiaryProgram"
+#! SETUP PROGRAM_DIR = "D:\\May MSI\\DiaryProgram"
 DIARY_DIR = "D:\\May MSI\\Diary"
 KEYS_DIR = "D:\\May MSI\\keys"
 IMAGE_TEMP_DIR = "C:\\Users\\thoma\\TempImages"
